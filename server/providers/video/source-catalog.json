@@ -1,0 +1,451 @@
+{
+  "updatedAt": "2026-10-15T15:54:28.905Z",
+  "reference": "https://github.com/creamycake-anime/animeko-subs",
+  "sources": [
+    {
+      "id": "xifan",
+      "name": "稀饭动漫",
+      "origin": "https://dm1.xfdm.pro",
+      "allowedOrigins": [
+        "https://dm1.xfdm.pro"
+      ],
+      "tier": 0,
+      "searchPath": "/search.html?wd={query}",
+      "search": {
+        "kind": "indexed",
+        "anchors": "div.video-info-header > a",
+        "names": "body > .box-width .search-box .thumb-content > .thumb-txt",
+        "links": "body > .box-width .search-box .thumb-menu > a",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".anthology-tab > .swiper-wrapper a",
+        "groups": ".anthology-list-box",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "girigiri",
+      "name": "girigiri愛動漫",
+      "origin": "https://ani.girigirilove.com",
+      "allowedOrigins": [
+        "https://ani.girigirilove.com"
+      ],
+      "tier": 0,
+      "searchPath": "/search/-------------/?wd={query}",
+      "search": {
+        "kind": "indexed",
+        "anchors": "div.video-info-header > a",
+        "names": "body > .box-width .vod-detail .detail-info .slide-info-title",
+        "links": "body > .box-width .vod-detail .detail-info > a",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".anthology-tab > .swiper-wrapper a",
+        "groups": ".anthology-list-box",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": false,
+      "initialStatus": "unverified",
+      "note": "上游使用动态页面，需通过来源页面确认资源。"
+    },
+    {
+      "id": "dida",
+      "name": "嘀嗒影视",
+      "origin": "https://www.didahd.xyz",
+      "allowedOrigins": [
+        "https://www.didahd.pro",
+        "https://www.didahd.xyz"
+      ],
+      "tier": 1,
+      "searchPath": "/search/-------------.html?wd={query}&submit=",
+      "search": {
+        "kind": "a",
+        "anchors": ".myui-vodlist__media h4 > a",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".nav-tabs a[href^=#playlist]",
+        "groups": ".myui-content__list",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "jibi",
+      "name": "叽哔动漫",
+      "origin": "https://www.jibi.cc",
+      "allowedOrigins": [
+        "https://www.jibi.cc"
+      ],
+      "tier": 3,
+      "searchPath": "/index.php/vod/search.html?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": "div.module-card-item-title > a",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".module-tab-item.tab-item span",
+        "groups": ".module-play-list-content",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "eacg",
+      "name": "E-ACG",
+      "origin": "https://www.eacg1.com",
+      "allowedOrigins": [
+        "https://www.eacg1.com"
+      ],
+      "tier": 3,
+      "searchPath": "/vodsearch/-------------.html?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": "body > div.fed-main-info.fed-min-width > div > div > dl > dd.fed-deta-content > h1 a",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".fed-drop-boxs.fed-drop-tops.fed-matp-v a",
+        "groups": ".fed-play-item.fed-drop-item",
+        "episodes": "a.fed-btns-info",
+        "links": ""
+      },
+      "defaultEnabled": false,
+      "initialStatus": "challenge",
+      "note": "上游要求浏览器验证，当前服务端无法自动检索。"
+    },
+    {
+      "id": "senfun",
+      "name": "森之屋动漫",
+      "origin": "https://senfun.in",
+      "allowedOrigins": [
+        "https://senfun.in"
+      ],
+      "tier": 3,
+      "searchPath": "/search.html?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": "div.module-card-item-title > a",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": "div.module-tab-item.tab-item span",
+        "groups": "#panel1",
+        "episodes": "a.module-play-list-link",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "fengche",
+      "name": "风车影视",
+      "origin": "https://www.dongmandaquan.vip",
+      "allowedOrigins": [
+        "https://www.dongmandaquan.vip"
+      ],
+      "tier": 3,
+      "searchPath": "/vodsearch/-------------.html?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": ".post-list .block-info .entry-title>a",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".ewave-playlist-tab>.swiper-wrapper>li>a",
+        "groups": ".playlist",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": false,
+      "initialStatus": "unavailable",
+      "note": "当前网络访问失败，可稍后重新检测。"
+    },
+    {
+      "id": "qukanba",
+      "name": "去看吧",
+      "origin": "https://11kt.net",
+      "allowedOrigins": [
+        "https://11kt.net"
+      ],
+      "tier": 3,
+      "searchPath": "/index.php/vod/search.html?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": ".fed-part-eone.fed-font-xvi a",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".fed-drop-boxs.fed-drop-tops.fed-matp-v a",
+        "groups": ".fed-play-item.fed-drop-item",
+        "episodes": "a.fed-btns-info",
+        "links": ""
+      },
+      "defaultEnabled": false,
+      "initialStatus": "challenge",
+      "note": "上游要求浏览器验证，当前服务端无法自动检索。"
+    },
+    {
+      "id": "haixing",
+      "name": "海星动漫",
+      "origin": "https://www.haixingdmx.com",
+      "allowedOrigins": [
+        "https://www.haixingdmx.com"
+      ],
+      "tier": 4,
+      "searchPath": "/s_all?ex=1&kw={query}",
+      "search": {
+        "kind": "a",
+        "anchors": "div ul li h2 > a",
+        "names": ".search-box .thumb-content > .thumb-txt",
+        "links": ".search-box .thumb-menu > a",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".tabs .menu0 li",
+        "groups": ".tabs .main0 div ul",
+        "episodes": "li a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "yinghua",
+      "name": "樱花动漫",
+      "origin": "https://www.yinghuabb.com",
+      "allowedOrigins": [
+        "https://www.yinghua2.com",
+        "https://www.yinghuabb.com"
+      ],
+      "tier": 4,
+      "searchPath": "/index.php/vod/search.html?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": ".title > a",
+        "names": ".search-box .thumb-content > .thumb-txt",
+        "links": ".search-box .thumb-menu > a",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".playlist  .stui-pannel__head > h3.title",
+        "groups": ".stui-content__playlist",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "dilidili",
+      "name": "嘀哩嘀哩",
+      "origin": "https://dilidili.io",
+      "allowedOrigins": [
+        "https://dilidili.io"
+      ],
+      "tier": 4,
+      "searchPath": "/search?q={query}",
+      "search": {
+        "kind": "a",
+        "anchors": "dl h3 a[href^='/anime/']",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": "span.pk_time",
+        "groups": "ul.clear",
+        "episodes": "a span",
+        "links": "a"
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "2kdm",
+      "name": "2k动漫",
+      "origin": "https://www.2kdm.com",
+      "allowedOrigins": [
+        "https://www.2kdm.com"
+      ],
+      "tier": 4,
+      "searchPath": "/index.php/ajax/suggest?mid=1&wd={query}",
+      "search": {
+        "kind": "json",
+        "anchors": "div.video-info-header > a",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": "/voddetail/{value}.html"
+      },
+      "chapters": {
+        "names": "#y-playList .module-tab-item:first-child span",
+        "groups": ".module-play-list-content",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "youknow",
+      "name": "新优酷",
+      "origin": "https://www.youknow.tv",
+      "allowedOrigins": [
+        "https://www.youknow.tv"
+      ],
+      "tier": 4,
+      "searchPath": "/search/-------------/?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": ".module-card-item-title > a",
+        "names": "",
+        "links": "",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".module-tab-items-box > .module-tab-item.tab-item",
+        "groups": ".module-play-list-content.module-play-list-base",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": false,
+      "initialStatus": "challenge",
+      "note": "上游要求浏览器验证，当前服务端无法自动检索。"
+    },
+    {
+      "id": "fanqie",
+      "name": "番茄动漫",
+      "origin": "https://www.fqdm.cc",
+      "allowedOrigins": [
+        "https://www.fqdm.cc"
+      ],
+      "tier": 4,
+      "searchPath": "/index.php/vod/search.html?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": "div.module-card-item-info > div.module-card-item-title > a",
+        "names": ".search-box .thumb-content > .thumb-txt",
+        "links": ".search-box .thumb-menu > a",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": "#y-playList > div > span",
+        "groups": "#panel1",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "wedm",
+      "name": "wedm",
+      "origin": "https://www.vdm5.com",
+      "allowedOrigins": [
+        "https://www.vdm5.com"
+      ],
+      "tier": 4,
+      "searchPath": "/search_-------------.html?wd={query}",
+      "search": {
+        "kind": "a",
+        "anchors": "div.detail > h3 > a",
+        "names": ".search-box .thumb-content > .thumb-txt",
+        "links": ".search-box .thumb-menu > a",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": "div.stui-pannel-box.playlist > div.stui-pannel_hd > div > h3.title",
+        "groups": ".stui-content__playlist",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    },
+    {
+      "id": "senlin",
+      "name": "影视森林",
+      "origin": "http://www.hc34567.com",
+      "allowedOrigins": [
+        "http://www.hc34567.com"
+      ],
+      "tier": 4,
+      "searchPath": "/hcvodsearch/{query}----------1---.html",
+      "search": {
+        "kind": "a",
+        "anchors": ".title > a",
+        "names": ".search-box .thumb-content > .thumb-txt",
+        "links": ".search-box .thumb-menu > a",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".anthology-tab > .swiper-wrapper a",
+        "groups": "",
+        "episodes": ".myui-content__list a",
+        "links": ""
+      },
+      "defaultEnabled": false,
+      "initialStatus": "challenge",
+      "note": "上游要求浏览器验证，当前服务端无法自动检索。"
+    },
+    {
+      "id": "rebo",
+      "name": "热播之家",
+      "origin": "https://www.rebozj.cc",
+      "allowedOrigins": [
+        "https://www.rebozj.pro",
+        "https://www.rebozj.cc"
+      ],
+      "tier": 4,
+      "searchPath": "/search/-------------.html?wd={query}&submit=",
+      "search": {
+        "kind": "a",
+        "anchors": ".stui-vodlist__detail h4 a",
+        "names": ".search-box .thumb-content > .thumb-txt",
+        "links": ".search-box .thumb-menu > a",
+        "jsonLinkTemplate": ""
+      },
+      "chapters": {
+        "names": ".nav-tabs a",
+        "groups": ".stui-content__playlist",
+        "episodes": "a",
+        "links": ""
+      },
+      "defaultEnabled": true,
+      "initialStatus": "unverified",
+      "note": "已配置搜索与章节适配，播放以具体线路实测为准。"
+    }
+  ]
+}

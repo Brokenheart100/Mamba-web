@@ -1,0 +1,10 @@
+node_modules
+.nuxt
+.output
+.data
+.git
+.env
+.env.*
+output
+.playwright-cli
+output-audit*.json

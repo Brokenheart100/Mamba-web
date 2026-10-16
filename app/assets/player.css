@@ -1,0 +1,280 @@
+/* ArtPlayer owns its video DOM; keep its controls on the same glass material as the app. */
+.art-player-shell {
+  isolation: isolate;
+}
+.art-player-host {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.art-player-shell .video-status,
+.art-player-shell .video-failure {
+  z-index: 80;
+}
+.art-player-shell .video-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #1d29478c;
+  border: 1px solid #ffffff38;
+  border-radius: 14px;
+  backdrop-filter: blur(18px);
+}
+.art-player-shell .video-failure {
+  border-radius: inherit;
+}
+.danmaku-error {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 70;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #1d2947a0;
+  font-size: 11px;
+  color: #e4edff;
+  pointer-events: none;
+}
+.art-video-player.ani-artplayer {
+  font-family: inherit !important;
+  --art-theme: #6ca8ff;
+  --art-widget-background: rgba(28, 37, 58, 0.88);
+  --art-tip-background: rgba(28, 37, 58, 0.88);
+  --art-font-color: #fff;
+  --art-hover-color: rgba(255, 255, 255, 0.13);
+  --art-border-radius: 16px;
+}
+.art-video-player.ani-artplayer video {
+  object-fit: contain;
+}
+.art-video-player.ani-artplayer .art-bottom {
+  inset: auto 14px 14px;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  padding: 8px 14px 3px;
+  border: 1px solid #ffffff38;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #ffffff20, #ffffff08), #16233a75;
+  box-shadow:
+    0 9px 24px #0002,
+    inset 0 1px 0 #ffffff25;
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+.art-video-player.ani-artplayer .art-controls {
+  gap: 5px;
+}
+.art-video-player.ani-artplayer .art-controls .art-controls-center {
+  min-width: 0;
+  padding: 0 9px;
+  position: static;
+}
+.art-video-player.ani-artplayer .art-control {
+  border-radius: 10px;
+  opacity: 0.95;
+}
+.art-video-player.ani-artplayer .art-control:hover {
+  background: #ffffff12;
+}
+.art-video-player.ani-artplayer .art-control-time {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 450;
+}
+.art-video-player.ani-artplayer .art-control-progress,
+.art-video-player.ani-artplayer .art-progress-loaded,
+.art-video-player.ani-artplayer .art-progress-played {
+  border-radius: 10px;
+}
+.art-video-player.ani-artplayer .art-settings,
+.art-video-player.ani-artplayer .art-contextmenus,
+.art-video-player.ani-artplayer .art-selector-list,
+.art-video-player.ani-artplayer .art-notice-inner {
+  border: 1px solid #ffffff28;
+  border-radius: 17px;
+  background: #1b263bd9;
+  box-shadow: 0 14px 40px #0003;
+  backdrop-filter: blur(25px) saturate(150%);
+}
+.art-video-player.ani-artplayer .art-settings {
+  overflow: hidden;
+}
+.art-video-player.ani-artplayer .art-setting-item {
+  font-size: 12px;
+}
+.art-video-player.ani-artplayer .artplayer-plugin-danmuku {
+  position: static;
+  gap: 14px;
+}
+.art-video-player.ani-artplayer .apd-config {
+  position: static;
+}
+.art-video-player.ani-artplayer .apd-config .apd-config-panel {
+  left: auto;
+  right: 0;
+  bottom: 30px;
+  max-width: 100%;
+  width: 310px;
+  padding: 12px 0;
+}
+.art-video-player.ani-artplayer .apd-config .apd-config-panel-inner {
+  padding: 17px;
+  border: 1px solid #ffffff38;
+  border-radius: 21px;
+  background: linear-gradient(145deg, #ffffff12, #ffffff03), #18243aeb;
+  box-shadow: 0 12px 35px #0004;
+  backdrop-filter: blur(24px) saturate(150%);
+}
+.art-video-player.ani-artplayer .apd-config .apd-config-panel {
+  opacity: 0;
+  pointer-events: none;
+}
+.art-video-player.ani-artplayer
+  .apd-config[data-open="true"]
+  .apd-config-panel {
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (hover: hover) {
+  .art-video-player.ani-artplayer .apd-config:hover .apd-config-panel {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+.art-video-player.ani-artplayer .apd-icon {
+  outline-offset: 5px;
+  border-radius: 5px;
+}
+.art-video-player.ani-artplayer .apd-mode,
+.art-video-player.ani-artplayer .apd-other {
+  border-radius: 8px;
+}
+.art-video-player.ani-artplayer .apd-config-mode,
+.art-video-player.ani-artplayer .apd-config-slider,
+.art-video-player.ani-artplayer .apd-config-other {
+  margin-bottom: 20px;
+}
+.art-video-player.ani-artplayer
+  .apd-config
+  .apd-config-panel-inner
+  .apd-config-other:last-child {
+  margin-bottom: 0;
+}
+.art-video-player.ani-artplayer .apd-slider-dot {
+  background: #6ca8ff;
+  box-shadow: 0 2px 6px #0003;
+}
+.art-video-player.ani-artplayer .apd-slider-progress {
+  background: #6ca8ff;
+}
+.art-video-player.ani-artplayer .apd-slider-steps {
+  color: #c7d2e5;
+  font-size: 10px;
+}
+.art-video-player.ani-artplayer .art-notice-inner {
+  padding: 10px 15px;
+  font-size: 12px;
+  color: #fff;
+}
+.art-video-player.ani-artplayer.art-fullscreen-web {
+  border-radius: 0;
+}
+@media (max-width: 600px) {
+  .art-video-player.ani-artplayer .art-bottom {
+    inset: auto 8px 8px;
+    padding: 4px 8px 1px;
+    border-radius: 17px;
+  }
+  .art-video-player.ani-artplayer .art-controls {
+    gap: 0;
+  }
+  .art-video-player.ani-artplayer .art-controls .art-controls-center {
+    padding: 0 3px;
+  }
+  .art-video-player.ani-artplayer .art-control {
+    padding: 0 3px;
+  }
+  .art-video-player.ani-artplayer .art-control-time {
+    font-size: 10px;
+  }
+  .art-video-player.ani-artplayer .artplayer-plugin-danmuku {
+    gap: 10px;
+  }
+  .art-video-player.ani-artplayer .art-control-volume {
+    display: none;
+  }
+  .art-video-player.ani-artplayer .apd-config .apd-config-panel {
+    width: 280px;
+    bottom: 26px;
+  }
+  .art-video-player.ani-artplayer .apd-config .apd-config-panel-inner {
+    padding: 13px;
+  }
+  .art-video-player.ani-artplayer .art-controls svg {
+    width: 23px;
+    height: 23px;
+  }
+  .art-video-player.ani-artplayer .art-settings {
+    max-height: 160px;
+  }
+  .art-video-player.ani-artplayer.art-fullscreen-web .art-settings {
+    max-height: 70vh;
+  }
+}
+
+.art-video-player.ani-artplayer .apd-config-panel-inner {
+  max-height: calc(var(--ani-player-height, 360px) - 85px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #b6caff55 transparent;
+}
+/* The plugin writes an inline left offset for its original control-bar layout. */
+.art-video-player.ani-artplayer .apd-config .apd-config-panel {
+  left: auto !important;
+  right: 0;
+}
+.art-video-player.ani-artplayer
+  .apd-config
+  .apd-config-panel
+  .apd-config-panel-inner {
+  padding: 17px;
+  border: 1px solid #ffffff38;
+  border-radius: 21px;
+  background: linear-gradient(145deg, #ffffff12, #ffffff03), #18243aeb;
+  box-shadow: 0 12px 35px #0004;
+  backdrop-filter: blur(24px) saturate(150%);
+}
+.art-video-player.ani-artplayer .art-controls .art-controls-center {
+  flex: 0 0 auto;
+}
+.art-video-player.ani-artplayer .artplayer-plugin-danmuku {
+  width: auto;
+  min-width: 48px;
+}
+.art-video-player.ani-artplayer .apd-toggle,
+.art-video-player.ani-artplayer .apd-config {
+  flex-shrink: 0;
+}
+.art-video-player.ani-artplayer .art-controls .apd-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.lab-page .page-intro > .small-pill {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+@media (max-width: 600px) {
+  .art-video-player.ani-artplayer
+    .apd-config
+    .apd-config-panel
+    .apd-config-panel-inner {
+    padding: 13px;
+  }
+  .art-video-player.ani-artplayer .artplayer-plugin-danmuku {
+    gap: 8px;
+    min-width: 44px;
+  }
+}
