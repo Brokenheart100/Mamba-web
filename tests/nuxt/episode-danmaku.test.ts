@@ -13,7 +13,7 @@ import {
 } from "../../app/repositories/online-danmaku";
 import { onlineDanmakuMaxAge } from "../../shared/utils/online-danmaku";
 import type { Subject, Episode } from "../../shared/types/media";
-import type { OnlineDanmakuResult } from "../../shared/types/online-danmaku";
+import type { DanmakuMatch, DanmakuSearchResult, OnlineDanmakuResult } from "../../shared/types/online-danmaku";
 import DanmakuPanel from "../../app/components/player/DanmakuPanel.vue";
 import { defaultSettings } from "../../shared/utils/media";
 
@@ -69,6 +69,9 @@ let commentCalls = 0;
 let searchCalls = 0;
 let failComments = false;
 let held: Promise<OnlineDanmakuResult> | undefined;
+let mapping: DanmakuSearchResult;
+let heldMapping: Promise<DanmakuSearchResult> | undefined;
+let failMapping = false;
 registerEndpoint("/api/danmaku/status", () => ({
   available,
   state: available ? "ready" : "unconfigured",
@@ -76,7 +79,8 @@ registerEndpoint("/api/danmaku/status", () => ({
 }));
 registerEndpoint("/api/danmaku/match", () => {
   searchCalls++;
-  return { matches: [candidate], hasMore: false };
+  if (failMapping) throw createError({ statusCode: 503, message: "测试：映射暂时不可用" });
+  return heldMapping || mapping;
 });
 registerEndpoint("/api/danmaku/search", () => {
   searchCalls++;
@@ -88,17 +92,19 @@ registerEndpoint(`/api/danmaku/${candidate.episodeId}`, () => {
     throw createError({ statusCode: 503, message: "测试：弹幕服务暂时不可用" });
   return held || pool();
 });
-async function mountControl() {
+async function mountControl(current = episode, delayed = false) {
   let control!: ReturnType<typeof useEpisodeDanmaku>;
+  const anime = ref<Subject | null>(delayed ? null : subject);
+  const chapter = ref<Episode | undefined>(delayed ? undefined : current);
   const Harness = defineComponent({
     setup() {
-      control = useEpisodeDanmaku(key, ref(subject), ref(episode));
+      control = useEpisodeDanmaku(key, anime, chapter);
       return () => h("p", control.message.value);
     },
   });
   const wrapper = await mountSuspended(Harness);
   await vi.waitFor(() => expect(control.ready.value).toBe(true));
-  return { control, wrapper };
+  return { control, wrapper, anime, chapter };
 }
 beforeEach(async () => {
   available = true;
@@ -106,6 +112,9 @@ beforeEach(async () => {
   searchCalls = 0;
   failComments = false;
   held = undefined;
+  mapping = { matches: [candidate], hasMore: false };
+  heldMapping = undefined;
+  failMapping = false;
   await readDanmakuSelection(key);
   await readDanmaku(key);
   const onlineDb = await openDB("ani-online-danmaku", 1);
@@ -118,6 +127,97 @@ beforeEach(async () => {
 });
 
 describe("episode danmaku flow in Nuxt", () => {
+  it("automatically loads and persists the uniquely mapped regular episode on first open", async () => {
+    const { control, wrapper } = await mountControl();
+    try {
+      await vi.waitFor(() => expect(control.message.value).toContain("已自动匹配本集"));
+      expect(control.mode.value).toBe("online");
+      expect(control.items.value[0]?.text).toBe("在线测试弹幕");
+      expect(searchCalls).toBe(1);
+      expect(commentCalls).toBe(1);
+      expect((await readDanmakuSelection(key))?.match).toEqual(candidate);
+    } finally { wrapper.unmount(); }
+  });
+
+  it("waits for metadata before automatically matching the current episode", async () => {
+    const { control, wrapper, anime, chapter } = await mountControl(episode, true);
+    try {
+      expect(searchCalls).toBe(0);
+      anime.value = subject;
+      chapter.value = episode;
+      await vi.waitFor(() => expect(control.mode.value).toBe("online"));
+      expect(commentCalls).toBe(1);
+    } finally { wrapper.unmount(); }
+  });
+
+  it.each<[string, DanmakuMatch[]]>([
+    ["ambiguous pools", [candidate, { ...candidate, episodeId: "1000002" }]],
+    ["another season", [{ ...candidate, animeTitle: "葬送的芙莉莲 第二季" }]],
+    ["missing episode number", [{ ...candidate, episodeNumber: undefined }]],
+    ["unclear season metadata", [{ ...candidate, seasonTitle: "第二季" }]],
+  ])("requires manual selection for %s", async (_label, matches) => {
+    mapping.matches = matches;
+    const { control, wrapper } = await mountControl();
+    try {
+      await vi.waitFor(() => expect(control.message.value).toContain("手动选择"));
+      expect(commentCalls).toBe(0);
+      expect(control.mode.value).toBe("local");
+      expect(await readDanmakuSelection(key)).toBeUndefined();
+    } finally { wrapper.unmount(); }
+  });
+
+  it("requires manual selection when the mapped result is incomplete", async () => {
+    mapping.hasMore = true;
+    const { control, wrapper } = await mountControl();
+    try {
+      await vi.waitFor(() => expect(control.message.value).toContain("手动选择"));
+      expect(commentCalls).toBe(0);
+    } finally { wrapper.unmount(); }
+  });
+
+  it("does not guess special episode numbering", async () => {
+    const { control, wrapper } = await mountControl({ ...episode, type: 1 });
+    try {
+      await vi.waitFor(() => expect(control.message.value).toContain("特别篇"));
+      expect(searchCalls).toBe(0);
+      expect(commentCalls).toBe(0);
+    } finally { wrapper.unmount(); }
+  });
+
+  it("preserves an explicitly selected local mode even without an imported file", async () => {
+    await saveDanmakuSelection(key, { mode: "local" });
+    const { control, wrapper } = await mountControl();
+    try {
+      expect(control.mode.value).toBe("local");
+      expect(searchCalls).toBe(0);
+      expect(commentCalls).toBe(0);
+    } finally { wrapper.unmount(); }
+  });
+
+  it("leaves automatic mapping failures retryable without saving a false match", async () => {
+    failMapping = true;
+    const { control, wrapper } = await mountControl();
+    try {
+      await vi.waitFor(() => expect(control.message.value).toContain("重试"));
+      expect(commentCalls).toBe(0);
+      expect(await readDanmakuSelection(key)).toBeUndefined();
+    } finally { wrapper.unmount(); }
+  });
+
+  it("does not let a delayed automatic match override an explicit switch to local", async () => {
+    let release!: (result: DanmakuSearchResult) => void;
+    heldMapping = new Promise((resolve) => { release = resolve; });
+    const { control, wrapper } = await mountControl();
+    try {
+      await vi.waitFor(() => expect(searchCalls).toBe(1));
+      await control.useLocal();
+      release(mapping);
+      await vi.waitFor(() => expect(control.searching.value).toBe(false));
+      expect(commentCalls).toBe(0);
+      expect(control.mode.value).toBe("local");
+      expect((await readDanmakuSelection(key))?.mode).toBe("local");
+    } finally { release(mapping); wrapper.unmount(); }
+  });
   it("keeps imported files active and never fetches comments before a user confirms a pool", async () => {
     await storeDanmaku(key, local);
     const { control, wrapper } = await mountControl();
@@ -129,7 +229,7 @@ describe("episode danmaku flow in Nuxt", () => {
       expect(commentCalls).toBe(0);
       await control.loadOnline(candidate);
       expect(control.items.value[0]?.text).toBe("在线测试弹幕");
-      expect((await readDanmakuSelection(key)).match).toEqual(candidate);
+      expect((await readDanmakuSelection(key))?.match).toEqual(candidate);
       expect(await readOnlineDanmakuCache(candidate.episodeId)).toBeDefined();
       await control.useLocal();
       expect(control.items.value[0]?.text).toBe("我的本地弹幕");
@@ -188,7 +288,7 @@ describe("episode danmaku flow in Nuxt", () => {
       await loading;
       expect(control.mode.value).toBe("local");
       expect(control.items.value[0]?.text).toBe("我的本地弹幕");
-      expect((await readDanmakuSelection(key)).mode).toBe("local");
+      expect((await readDanmakuSelection(key))?.mode).toBe("local");
     } finally {
       release(pool());
       wrapper.unmount();

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { Subject } from "#shared/types/media";
-defineProps<{ subject: Subject; index?: number }>();
+defineProps<{ subject: Subject; index?: number; to?: string; external?: boolean; subtitle?: string }>();
 </script>
 <template>
-  <NuxtLink :to="`/subject/${subject.id}`" class="subject-card">
+  <NuxtLink :to="to || `/subject/${subject.id}`" :external="external" :target="external ? '_blank' : undefined" :rel="external ? 'noopener noreferrer' : undefined" class="subject-card">
     <GlassCard interactive class="poster-glass">
       <div class="poster">
         <AnimeCover
@@ -14,15 +14,16 @@ defineProps<{ subject: Subject; index?: number }>();
           referrerpolicy="no-referrer"
         />
         <div v-else class="poster-placeholder">
-          <AppIcon name="Film" :size="36" />
+          <UIcon aria-hidden="true" name="i-lucide-film" :size="36" />
         </div>
         <span v-if="subject.score" class="score-badge"
           ><span>★</span> {{ subject.score.toFixed(1) }}</span
-        ><span class="poster-play"><AppIcon name="Play" :size="22" /></span
+        ><span class="poster-play"><UIcon aria-hidden="true" name="i-lucide-play" :size="22" /></span
         ><span class="poster-type">{{ subject.platform || "TV" }}</span>
       </div>
       <h3>{{ subject.name }}</h3>
-      <p>
+      <p v-if="subtitle">{{ subtitle }}</p>
+      <p v-else>
         {{ subject.date ? subject.date.slice(0, 4) : "日期待定" }}<span>·</span
         >{{
           subject.episodes

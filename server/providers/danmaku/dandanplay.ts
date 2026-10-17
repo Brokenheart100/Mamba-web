@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { createError } from "h3";
+import { LRUCache } from "lru-cache";
 import type { Danmaku } from "#shared/types/media";
 import type {
   DanmakuSearchResult,
@@ -176,12 +177,17 @@ export function createDandanplayClient(options: {
 }) {
   const fetcher = options.fetcher || fetch;
   const now = options.now || Date.now;
-  const cache = new Map<
-    string,
-    { value: unknown; expires: number; bytes: number }
-  >();
+  type CacheValue = DanmakuSearchResult | OnlineDanmakuResult;
+  const cache = new LRUCache<string, CacheValue>({
+    max: 100,
+    maxSize: 16 * 1024 * 1024,
+    sizeCalculation: (value) => Math.max(1, Buffer.byteLength(JSON.stringify(value))),
+    ttlResolution: 0,
+    ...(options.now ? { perf: { now } } : {}),
+  });
+  // Keep at most four distinct in-flight jobs separate from the cache:
+  // cache eviction must not start a duplicate upstream request.
   const pending = new Map<string, Promise<unknown>>();
-  let cacheBytes = 0;
 
   async function request(
     path: string,
@@ -200,7 +206,7 @@ export function createDandanplayClient(options: {
         signal,
         headers: {
           Accept: "application/json",
-          "User-Agent": "AnimekoWeb/0.1 (danmaku reader)",
+          "User-Agent": "Mamba-Animation/0.1 (danmaku reader)",
           "X-AppId": options.appId,
           "X-Timestamp": timestamp,
           "X-Signature": dandanplaySignature(
@@ -281,39 +287,19 @@ export function createDandanplayClient(options: {
     }
   }
 
-  async function cached<T>(
+  async function cached<T extends CacheValue>(
     key: string,
     ttl: number,
     load: () => Promise<T>,
   ): Promise<T> {
     const hit = cache.get(key);
-    if (hit && hit.expires > now()) {
-      cache.delete(key);
-      cache.set(key, hit);
-      return hit.value as T;
-    }
-    if (hit) {
-      cacheBytes -= hit.bytes;
-      cache.delete(key);
-    }
+    if (hit) return hit as T;
     if (pending.has(key)) return pending.get(key) as Promise<T>;
     if (pending.size >= 4)
       throw unavailable("在线弹幕服务繁忙，请稍后重试。", 503);
     const task = load()
       .then((value) => {
-        const bytes = Buffer.byteLength(JSON.stringify(value));
-        while (
-          cache.size &&
-          (cache.size >= 100 || cacheBytes + bytes > 16 * 1024 * 1024)
-        ) {
-          const oldest = cache.keys().next().value!;
-          cacheBytes -= cache.get(oldest)!.bytes;
-          cache.delete(oldest);
-        }
-        if (bytes <= 16 * 1024 * 1024) {
-          cache.set(key, { value, bytes, expires: now() + ttl });
-          cacheBytes += bytes;
-        }
+        cache.set(key, value, { ttl });
         return value;
       })
       .finally(() => pending.delete(key));

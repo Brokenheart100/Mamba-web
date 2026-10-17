@@ -8,13 +8,16 @@ const props = withDefaults(
     sizes?: string;
     loading?: "lazy" | "eager";
     fetchpriority?: "high" | "low" | "auto";
+    fit?: "cover" | "contain";
   }>(),
   {
+    src: undefined,
     width: 300,
     height: 428,
     sizes: "150px sm:220px",
     loading: "lazy",
     fetchpriority: "auto",
+    fit: "cover",
   },
 );
 const failed = ref(false);
@@ -53,7 +56,7 @@ const optimized = computed(() =>
     densities="x1 x2"
     format="webp"
     :quality="80"
-    fit="cover"
+    :fit="fit"
     :loading="loading"
     :fetchpriority="fetchpriority"
     decoding="async"

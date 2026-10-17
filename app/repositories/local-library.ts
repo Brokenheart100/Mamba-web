@@ -1,5 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import type { PlayerSettings, WatchProgress } from "#shared/types/media";
+import { watchProgressSchema } from "#shared/schemas/media";
 import {
   nextProgress,
   parseBackup,
@@ -45,14 +46,18 @@ function db() {
 }
 
 export async function listProgress(): Promise<WatchProgress[]> {
-  return (
-    await (await db()).getAllFromIndex("progress", "by-updated")
-  ).reverse();
+  const rows = await (await db()).getAllFromIndex("progress", "by-updated");
+  return rows.flatMap((row) => {
+    const parsed = watchProgressSchema.safeParse(row);
+    return parsed.success ? [parsed.data] : [];
+  }).reverse();
 }
 export async function getProgress(key: string) {
-  return (await db()).get("progress", key);
+  const parsed = watchProgressSchema.safeParse(await (await db()).get("progress", key));
+  return parsed.success ? parsed.data : undefined;
 }
 export async function saveProgress(row: WatchProgress) {
+  row = watchProgressSchema.parse(row);
   const tx = (await db()).transaction("progress", "readwrite");
   const previous = await tx.store.get(row.key);
   await tx.store.put(nextProgress(previous, row));
@@ -74,7 +79,7 @@ export async function clearProgress() {
 export async function exportProgress() {
   return JSON.stringify(
     {
-      app: "animeko-web",
+      app: "mamba-animation",
       version: 1,
       exportedAt: new Date().toISOString(),
       progress: await listProgress(),

@@ -15,8 +15,7 @@ onMounted(refresh);
         </h2>
       </div>
       <NuxtLink to="/history" class="text-link"
-        >全部记录 <AppIcon name="ArrowRight" :size="16"
-      /></NuxtLink>
+        >全部记录 <UIcon aria-hidden="true" name="i-lucide-arrow-right" :size="16" /></NuxtLink>
     </div>
     <div class="continue-grid">
       <NuxtLink
@@ -47,7 +46,7 @@ onMounted(refresh);
             </div>
           </div>
           <span class="continue-play"
-            ><AppIcon name="Play" :size="18" /></span></GlassCard
+            ><UIcon aria-hidden="true" name="i-lucide-play" :size="18" /></span></GlassCard
       ></NuxtLink>
     </div>
   </section>

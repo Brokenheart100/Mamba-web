@@ -7,6 +7,8 @@ import type {
   OnlineDanmakuResult,
 } from "#shared/types/online-danmaku";
 import { onlineDanmakuMaxAge } from "#shared/utils/online-danmaku";
+import { normalizeTitle } from "#shared/utils/media";
+import { danmakuSearchResultSchema } from "#shared/schemas/danmaku";
 import {
   importDanmaku,
   readDanmaku,
@@ -37,6 +39,8 @@ export function useEpisodeDanmaku(
   const matches = shallowRef<DanmakuMatch[]>([]);
   const searching = ref(false);
   const searchMessage = ref("");
+  const autoEligible = ref(false);
+  let autoAttempted = false;
   let alive = true;
   let generation = 0;
   let searchGeneration = 0;
@@ -70,6 +74,8 @@ export function useEpisodeDanmaku(
     }
   }
   async function useLocal() {
+    autoEligible.value = false;
+    cancelSearch();
     cancelLoad();
     mode.value = "local";
     items.value = localItems.value;
@@ -79,6 +85,8 @@ export function useEpisodeDanmaku(
     await persistSelection();
   }
   async function upload(file: File) {
+    autoEligible.value = false;
+    cancelSearch();
     cancelLoad();
     const request = generation;
     try {
@@ -101,6 +109,8 @@ export function useEpisodeDanmaku(
     }
   }
   async function loadOnline(candidate: DanmakuMatch, reload = false) {
+    autoEligible.value = false;
+    cancelSearch();
     cancelLoad();
     const request = generation;
     busy.value = true;
@@ -165,6 +175,7 @@ export function useEpisodeDanmaku(
     }
   }
   async function search(keyword?: string, episodeFilter = "") {
+    autoEligible.value = false;
     cancelSearch();
     const request = searchGeneration;
     matches.value = [];
@@ -172,7 +183,7 @@ export function useEpisodeDanmaku(
     searching.value = true;
     searchController = new AbortController();
     try {
-      const result = await $fetch<DanmakuSearchResult>(
+      const result = danmakuSearchResultSchema.parse(await $fetch<DanmakuSearchResult>(
         keyword === undefined ? "/api/danmaku/match" : "/api/danmaku/search",
         {
           query:
@@ -183,7 +194,7 @@ export function useEpisodeDanmaku(
           timeout: 15000,
           retry: 0,
         },
-      );
+      ));
       if (!alive || request !== searchGeneration) return;
       const current = episode.value;
       // Sort likely regular episodes first, but never silently select a result.
@@ -195,6 +206,7 @@ export function useEpisodeDanmaku(
       searchMessage.value = result.matches.length
         ? `找到 ${result.matches.length} 个剧集，请核对番剧、季度和集数。${result.hasMore ? " 结果较多，请缩小搜索范围。" : ""}`
         : "没有找到对应弹幕库，可以修改番剧名或清空集数后搜索。";
+      return result;
     } catch (error) {
       if (alive && request === searchGeneration)
         searchMessage.value = errorText(error);
@@ -202,6 +214,42 @@ export function useEpisodeDanmaku(
       if (alive && request === searchGeneration) searching.value = false;
     }
   }
+  async function autoMatch() {
+    const current = episode.value;
+    const anime = subject.value;
+    if (!current || !anime || current.subjectId !== anime.id || current.type !== 0 || !Number.isInteger(current.sort) || current.sort <= 0) {
+      message.value = "特别篇或集数不明确，请点击“查找在线弹幕”手动选择。";
+      return;
+    }
+    const request = generation;
+    message.value = "正在自动匹配本集弹幕…";
+    const result = await search();
+    if (!alive || request !== generation) return;
+    if (!result) {
+      message.value = `${searchMessage.value} 可点击“查找在线弹幕”重试。`;
+      return;
+    }
+    const names = new Set([anime.name, anime.originalName].map(normalizeTitle).filter(Boolean));
+    const exact = result.matches.filter((row) =>
+      names.has(normalizeTitle(row.animeTitle)) &&
+      !row.seasonTitle?.trim() &&
+      /^\d+$/.test(row.episodeNumber?.trim() || "") &&
+      Number(row.episodeNumber) === current.sort,
+    );
+    if (result.hasMore || exact.length !== 1) {
+      message.value = "未找到唯一明确的本集弹幕库，请点击“查找在线弹幕”手动选择。";
+      return;
+    }
+    await loadOnline(exact[0]!);
+    if (alive && mode.value === "online" && match.value?.episodeId === exact[0]!.episodeId) {
+      message.value += " 已自动匹配本集，可通过“查找在线弹幕”更换。";
+    }
+  }
+  watch([autoEligible, subject, episode], () => {
+    if (!autoEligible.value || autoAttempted || !subject.value || !episode.value) return;
+    autoAttempted = true;
+    void autoMatch();
+  }, { flush: "post" });
   onMounted(async () => {
     const [local, selection, status] = await Promise.allSettled([
       readDanmaku(key),
@@ -225,14 +273,17 @@ export function useEpisodeDanmaku(
         : localItems.value.length
           ? `已加载本地弹幕，共 ${localItems.value.length} 条。`
           : "可导入 XML / JSON 弹幕，文件仅保存在本地。";
-    if (selection.status === "fulfilled") match.value = selection.value.match;
+    if (selection.status === "fulfilled") match.value = selection.value?.match;
     ready.value = true;
     if (
       selection.status === "fulfilled" &&
-      selection.value.mode === "online" &&
+      selection.value?.mode === "online" &&
       selection.value.match
     )
       await loadOnline(selection.value.match);
+    else if (selection.status === "fulfilled" && !selection.value && local.status === "fulfilled" && !local.value.length && service.value?.available) {
+      autoEligible.value = true;
+    }
   });
   onBeforeUnmount(() => {
     alive = false;

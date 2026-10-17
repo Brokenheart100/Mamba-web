@@ -16,7 +16,7 @@ function search() {
   if (keyword.value.trim())
     void navigateTo({ path: "/search", query: { q: keyword.value.trim() } });
 }
-useSeoMeta({ title: () => `${query.value || "搜索番剧"} — Ani` });
+useSeoMeta({ title: () => `${query.value || "搜索番剧"} — Mamba-Animation` });
 </script>
 <template>
   <div class="page">
@@ -75,15 +75,14 @@ useSeoMeta({ title: () => `${query.value || "搜索番剧"} — Ani` });
           }"
           color="neutral"
           variant="soft"
-          ><AppIcon name="ChevronLeft" :size="16" />上一页</UButton
+          ><UIcon aria-hidden="true" name="i-lucide-chevron-left" :size="16" />上一页</UButton
         ><span>第 {{ Math.floor(offset / data.limit) + 1 }} 页</span
         ><UButton
           v-if="offset + data.limit < Math.min(1000, data.total)"
           :to="{ query: { q: query, offset: offset + data.limit } }"
           color="neutral"
           variant="soft"
-          >下一页<AppIcon name="ChevronRight" :size="16"
-        /></UButton></nav></template
+          >下一页<UIcon aria-hidden="true" name="i-lucide-chevron-right" :size="16" /></UButton></nav></template
     ><FeedbackState
       v-else
       title="好故事，从一个名字开始"

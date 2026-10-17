@@ -44,12 +44,12 @@ const typeNames: Record<number, string> = {
   5: "MAD",
   6: "其他",
 };
-useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Ani` });
+useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Mamba-Animation` });
 </script>
 <template>
   <div class="page detail-page">
     <NuxtLink to="/" class="back-link">
-      <AppIcon name="ArrowLeft" :size="17" />返回发现
+      <UIcon aria-hidden="true" name="i-lucide-arrow-left" :size="17" />返回发现
     </NuxtLink>
     <FeedbackState v-if="error" title="暂时无法打开这部番剧" retry @retry="refresh()" /><template v-else-if="subject">
       <section class="detail-hero">
@@ -72,19 +72,19 @@ useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Ani` });
           <div class="tag-list">
             <span v-for="tag in subject.tags.slice(0, 6)" :key="tag">{{
               tag
-              }}</span>
+            }}</span>
           </div>
           <UButton v-if="last || first" :to="`/watch/${id}/${last?.episodeId || first?.id}`" color="primary"
             variant="solid">
-            <AppIcon name="Play" :size="18" />{{
+            <UIcon aria-hidden="true" name="i-lucide-play" :size="18" />{{
               last
                 ? `继续第 ${last.sort} 话 · ${formatTime(last.position)}`
                 : "开始观看"
             }}
-            <AppIcon name="ArrowRight" :size="17" />
+            <UIcon aria-hidden="true" name="i-lucide-arrow-right" :size="17" />
           </UButton>
           <p class="detail-note">
-            <AppIcon name="ShieldCheck" :size="14" />观看进度仅保存在你的浏览器
+            <UIcon aria-hidden="true" name="i-lucide-shield-check" :size="14" />观看进度仅保存在你的浏览器
           </p>
         </div>
       </section>
@@ -93,7 +93,7 @@ useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Ani` });
           <h2>关于这个故事</h2>
           <a :href="`https://bgm.tv/subject/${id}`" target="_blank" rel="noopener noreferrer" class="text-link">Bangumi
             详情
-            <AppIcon name="ArrowUpRight" :size="15" />
+            <UIcon aria-hidden="true" name="i-lucide-arrow-up-right" :size="15" />
           </a>
         </div>
         <p>{{ subject.summary || "这部番剧暂时没有简介。" }}</p>
@@ -117,8 +117,8 @@ useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Ani` });
                 class="episode-number">{{ episode.type === 0 ? "EP" : "SP" }}
                 {{ String(episode.sort).padStart(2, "0")
                 }}
-                <AppIcon v-if="progress.get(episode.id)?.completed" name="Check" :size="14" />
-                <AppIcon v-else name="Play" :size="14" />
+                <UIcon v-if="progress.get(episode.id)?.completed" aria-hidden="true" name="i-lucide-check" :size="14" />
+                <UIcon v-else aria-hidden="true" name="i-lucide-play" :size="14" />
               </span><strong>{{ episode.name }}</strong><small>{{
                 progress.get(episode.id)
                   ? progress.get(episode.id)?.completed
@@ -130,6 +130,8 @@ useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Ani` });
           <FeedbackState v-if="episodes && !episodes.length" title="章节尚未公布" description="可以稍后再来查看。" />
         </template>
       </section>
+      <SubjectExtras :subject-id="id" />
+      <SubjectComments :subject-id="id" />
     </template>
   </div>
 </template>

@@ -1,6 +1,7 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref } from "vue";
 import type { SourceCheck, VideoSourceInfo } from "#shared/types/media";
+import { sourcePreferencesSchema } from "#shared/schemas/media";
 
 const storageKey = "ani.source-preferences.v1";
 export const useSourcePreferencesStore = defineStore(
@@ -16,12 +17,12 @@ export const useSourcePreferencesStore = defineStore(
         sources.filter((s) => s.defaultEnabled).map((s) => s.id);
       try {
         const raw = localStorage.getItem(storageKey);
-        const parsed: unknown = raw ? JSON.parse(raw) : null;
+        const parsed = sourcePreferencesSchema.safeParse(raw ? JSON.parse(raw) : null);
         enabledIds.value =
-          Array.isArray(parsed) && parsed.every((id) => typeof id === "string")
+          parsed.success
             ? [
               ...new Set(
-                parsed.filter((id) =>
+                parsed.data.filter((id) =>
                   sources.some((source) => source.id === id),
                 ),
               ),

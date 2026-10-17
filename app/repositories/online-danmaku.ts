@@ -3,8 +3,8 @@ import type {
   DanmakuSelection,
   OnlineDanmakuResult,
 } from "#shared/types/online-danmaku";
-import { danmakuId, validateDanmakuMatch } from "#shared/utils/online-danmaku";
-import { validateDanmaku } from "#shared/utils/danmaku";
+import { danmakuId } from "#shared/utils/online-danmaku";
+import { danmakuSelectionSchema, onlineDanmakuResultSchema } from "#shared/schemas/danmaku";
 
 interface OnlineDanmakuDB extends DBSchema {
   selections: { key: string; value: DanmakuSelection };
@@ -25,14 +25,11 @@ const db = () =>
   });
 export async function readDanmakuSelection(
   key: string,
-): Promise<DanmakuSelection> {
+): Promise<DanmakuSelection | undefined> {
   const connection = await db();
   try {
     const row = await connection.get("selections", key);
-    return {
-      mode: row?.mode === "online" ? "online" : "local",
-      ...(row?.match ? { match: validateDanmakuMatch(row.match) } : {}),
-    };
+    return row === undefined ? undefined : danmakuSelectionSchema.parse(row);
   } finally {
     connection.close();
   }
@@ -45,12 +42,7 @@ export async function saveDanmakuSelection(
   try {
     await connection.put(
       "selections",
-      {
-        mode: selection.mode,
-        ...(selection.match
-          ? { match: validateDanmakuMatch(selection.match) }
-          : {}),
-      },
+      danmakuSelectionSchema.parse(selection),
       key,
     );
   } finally {
@@ -58,21 +50,11 @@ export async function saveDanmakuSelection(
   }
 }
 export function validateOnlineDanmaku(
-  value: OnlineDanmakuResult,
+  value: unknown,
 ): OnlineDanmakuResult {
-  const episodeId = danmakuId(value.episodeId);
-  if (!Number.isFinite(value.fetchedAt) || value.fetchedAt <= 0)
-    throw new Error("弹幕缓存时间无效。");
-  return {
-    episodeId,
-    items: validateDanmaku(value.items),
-    fetchedAt: value.fetchedAt,
-    skipped:
-      Number.isSafeInteger(value.skipped) && value.skipped >= 0
-        ? value.skipped
-        : 0,
-    truncated: value.truncated === true,
-  };
+  const parsed = onlineDanmakuResultSchema.safeParse(value);
+  if (!parsed.success) throw new Error("弹幕缓存格式无效。");
+  return parsed.data;
 }
 export async function readOnlineDanmakuCache(id: string) {
   const connection = await db();

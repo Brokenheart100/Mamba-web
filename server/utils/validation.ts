@@ -1,8 +1,9 @@
-import type { H3Event } from "h3";
+import { createError, getRouterParam, type H3Event } from "h3";
+import { routeIdSchema } from "#shared/schemas/requests";
 
 export function routeId(event: H3Event): number {
-  const raw = getRouterParam(event, "id") || "";
-  if (!/^\d{1,10}$/.test(raw) || Number(raw) <= 0)
+  const parsed = routeIdSchema.safeParse(getRouterParam(event, "id"));
+  if (!parsed.success)
     throw createError({ statusCode: 400, message: "条目 ID 无效。" });
-  return Number(raw);
+  return parsed.data;
 }

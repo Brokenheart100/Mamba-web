@@ -10,17 +10,16 @@ defineEmits<{ retry: [] }>();
 <template>
   <div class="feedback-state" role="status">
     <span class="feedback-icon" :class="{ spinning: loading }"
-      ><AppIcon :name="loading ? 'RefreshCw' : 'Film'" :size="28"
-    /></span>
+      ><UIcon aria-hidden="true" :name="loading ? 'i-lucide-refresh-cw' : 'i-lucide-film'" :size="28" /></span>
     <h2>{{ title }}</h2>
     <p v-if="description">{{ description }}</p>
     <UButton
+      v-if="retry"
       color="neutral"
       variant="soft"
-      v-if="retry"
       @click="$emit('retry')"
     >
-      <AppIcon name="RefreshCw" :size="16" />重新加载
+      <UIcon aria-hidden="true" name="i-lucide-refresh-cw" :size="16" />重新加载
     </UButton>
   </div>
 </template>

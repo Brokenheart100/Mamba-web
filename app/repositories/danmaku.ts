@@ -1,6 +1,7 @@
 import { openDB } from "idb";
 import type { Danmaku } from "#shared/types/media";
 import { validateDanmaku } from "#shared/utils/danmaku";
+import { storedDanmakuSchema } from "#shared/schemas/danmaku";
 
 const db = () =>
   openDB("ani-local-danmaku", 1, {
@@ -11,7 +12,7 @@ const db = () =>
 export async function readDanmaku(key: string): Promise<Danmaku[]> {
   const connection = await db();
   try {
-    return (await connection.get("episodes", key)) || [];
+    return storedDanmakuSchema.parse((await connection.get("episodes", key)) ?? []);
   } finally {
     connection.close();
   }
@@ -19,7 +20,7 @@ export async function readDanmaku(key: string): Promise<Danmaku[]> {
 export async function storeDanmaku(key: string, items: Danmaku[]) {
   const connection = await db();
   try {
-    await connection.put("episodes", items, key);
+    await connection.put("episodes", storedDanmakuSchema.parse(items), key);
   } finally {
     connection.close();
   }
@@ -47,6 +48,6 @@ export async function importDanmaku(file: File): Promise<Danmaku[]> {
     };
   });
   if (!rows.length)
-    throw new Error("文件中没有找到弹幕，支持 Bilibili 格式 XML 或 Ani JSON。");
+    throw new Error("文件中没有找到弹幕，支持 Bilibili 格式 XML 或 Mamba-Animation JSON。");
   return validateDanmaku(rows);
 }

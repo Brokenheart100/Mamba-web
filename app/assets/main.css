@@ -186,17 +186,24 @@ select {
   flex-direction: column;
   z-index: 45;
   transition: transform 0.25s;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   padding: 0 9px 30px;
-  font-size: 32px;
+  font-size: 18px;
   font-weight: 750;
-  letter-spacing: -2px;
+  letter-spacing: -0.04em;
+}
+.brand-name {
+  display: grid;
+  line-height: 1.15;
 }
 .brand-mark {
+  flex-shrink: 0;
   height: 35px;
   width: 35px;
   border-radius: 12px;

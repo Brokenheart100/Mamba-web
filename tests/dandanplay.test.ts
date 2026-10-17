@@ -139,6 +139,46 @@ describe("official dandanplay protocol", () => {
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
 
+  it("evicts the least recently used pool at one hundred entries", async () => {
+    const { client, fetcher } = setup(vi.fn<typeof fetch>().mockImplementation(async () => json(commentBody)));
+    for (let id = 1; id <= 100; id++) await client.comments(String(id));
+    await client.comments("1");
+    await client.comments("101");
+    await client.comments("1");
+    expect(fetcher).toHaveBeenCalledTimes(101);
+    await client.comments("2");
+    expect(fetcher).toHaveBeenCalledTimes(102);
+  });
+
+  it("limits total cached bytes even when fewer than one hundred pools are stored", async () => {
+    // Each upstream body fits under 8 MiB; three normalized pools exceed 16 MiB.
+    const largeBody = { comments: Array.from({ length: 10000 }, (_, index) => ({ p: `${index},1,0,u`, m: "中".repeat(200) })) };
+    const { client, fetcher } = setup(vi.fn<typeof fetch>().mockImplementation(async () => json(largeBody)));
+    await client.comments("1");
+    await client.comments("2");
+    await client.comments("3");
+    const calls = fetcher.mock.calls.length;
+    await client.comments("1");
+    expect(fetcher.mock.calls.length).toBe(calls + 1);
+  });
+
+  it("rejects a fifth distinct job while sharing requests for an already pending pool", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const { client, fetcher } = setup(vi.fn<typeof fetch>().mockImplementation(async () => {
+      await gate;
+      return json(commentBody);
+    }));
+    const jobs = ["1", "2", "3", "4"].map((id) => client.comments(id));
+    const duplicate = client.comments("1");
+    await expect(client.comments("5")).rejects.toThrow("服务繁忙");
+    expect(fetcher).toHaveBeenCalledTimes(4);
+    release();
+    await Promise.all([...jobs, duplicate]);
+    await client.comments("5");
+    expect(fetcher).toHaveBeenCalledTimes(5);
+  });
+
   it("preserves separate Bangumi and provider IDs, season labels, and manual search parameters", async () => {
     const fetcher = vi
       .fn<typeof fetch>()

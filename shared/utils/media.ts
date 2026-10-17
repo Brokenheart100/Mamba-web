@@ -1,4 +1,5 @@
 import type { PlayerSettings, WatchProgress } from "../types/media";
+import { progressBackupSchema, watchProgressSchema } from "../schemas/media";
 
 export const defaultSettings: PlayerSettings = {
   volume: 0.75,
@@ -71,43 +72,17 @@ export function progressKey(subjectId: number, episodeId: number): string {
 }
 
 export function isProgress(value: unknown): value is WatchProgress {
-  if (!value || typeof value !== "object") return false;
-  const row = value as WatchProgress;
-  return (
-    Number.isSafeInteger(row.subjectId) &&
-    row.subjectId > 0 &&
-    Number.isSafeInteger(row.episodeId) &&
-    row.episodeId > 0 &&
-    row.key === progressKey(row.subjectId, row.episodeId) &&
-    ["subjectName", "episodeName", "image", "sourceId", "channel"].every(
-      (k) =>
-        typeof (row as unknown as Record<string, unknown>)[k] === "string" &&
-        String((row as unknown as Record<string, unknown>)[k]).length < 4000,
-    ) &&
-    [row.position, row.duration, row.sort, row.updatedAt].every(
-      (n) => typeof n === "number" && Number.isFinite(n) && n >= 0,
-    ) &&
-    row.updatedAt <= 8_640_000_000_000_000 &&
-    typeof row.completed === "boolean"
-  );
+  return watchProgressSchema.safeParse(value).success;
 }
 
 export function parseBackup(text: string): WatchProgress[] {
   if (text.length > 5_000_000)
     throw new Error("文件过大，请选择 5 MB 以内的记录文件。");
   const backup: unknown = JSON.parse(text);
-  if (
-    !backup ||
-    typeof backup !== "object" ||
-    !("version" in backup) ||
-    backup.version !== 1 ||
-    !("progress" in backup) ||
-    !Array.isArray(backup.progress)
-  )
-    throw new Error("这不是受支持的 Ani 观看记录文件。");
-  if (backup.progress.length > 10_000 || !backup.progress.every(isProgress))
+  const parsed = progressBackupSchema.safeParse(backup);
+  if (!parsed.success)
     throw new Error("记录格式有误，原有记录没有被修改。");
-  return backup.progress;
+  return parsed.data.progress;
 }
 
 export function nextProgress(

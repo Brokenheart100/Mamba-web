@@ -13,7 +13,7 @@ onMounted(async () => {
     message.value = "偏好设置无法读取。";
   }
 });
-useSeoMeta({ title: "偏好设置 — Ani" });
+useSeoMeta({ title: "偏好设置 — Mamba-Animation" });
 async function save() {
   try {
     await library.saveSettings({ ...settings.value });
@@ -30,7 +30,7 @@ async function download() {
     );
     const link = document.createElement("a");
     link.href = url;
-    link.download = `ani-history-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `mamba-animation-history-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     message.value = "观看记录已导出。视频地址与弹幕文件不包含在导出中。";
@@ -178,7 +178,7 @@ async function clear() {
               accept=".json,application/json"
               aria-label="导入观看记录"
               @change="upload"
-          /></label>
+          ></label>
         </div>
       </div>
       <div class="setting-row">

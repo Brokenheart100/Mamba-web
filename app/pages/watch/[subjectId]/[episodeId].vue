@@ -90,9 +90,9 @@ const previous = computed(() => relevantEpisodes.value[currentIndex.value - 1]);
 const next = computed(() => relevantEpisodes.value[currentIndex.value + 1]);
 useSeoMeta({
   title: () =>
-    `${subject.value?.name || "正在播放"} · 第 ${episode.value?.sort || ""} 话 — Ani`,
+    `${subject.value?.name || "正在播放"} · 第 ${episode.value?.sort || ""} 话 — Mamba-Animation`,
 });
-definePageMeta({ key: (route) => route.fullPath });
+definePageMeta({ key: (route) => route.path });
 
 function errorText(error: unknown) {
   const e = error as { data?: { message?: string }; message?: string };
@@ -156,12 +156,12 @@ async function loadResources(auto = true) {
     initializeSources(catalog.sources);
     const list = catalog.enabled
       ? catalog.sources
-          .filter((source) => enabledIds.value?.includes(source.id))
-          .sort(
-            (a, b) =>
-              Number(b.id === preferredSource.value) -
-                Number(a.id === preferredSource.value) || a.tier - b.tier,
-          )
+        .filter((source) => enabledIds.value?.includes(source.id))
+        .sort(
+          (a, b) =>
+            Number(b.id === preferredSource.value) -
+            Number(a.id === preferredSource.value) || a.tier - b.tier,
+        )
       : [];
     totalSources.value = list.length;
     if (!list.length) {
@@ -434,14 +434,12 @@ onBeforeUnmount(() => {
 </script>
 <template>
   <div class="page watch-page">
-    <NuxtLink :to="`/subject/${subjectId}`" class="back-link"
-      ><AppIcon name="ArrowLeft" :size="17" />番剧详情</NuxtLink
-    ><FeedbackState
-      v-if="subjectError || episodesError"
-      title="番剧或章节暂时无法加载"
-      description="返回详情页重新选择，或稍后刷新。"
-    /><template v-else-if="subject && episode"
-      ><div class="watch-heading">
+    <NuxtLink :to="`/subject/${subjectId}`" class="back-link">
+      <UIcon aria-hidden="true" name="i-lucide-arrow-left" :size="17" />番剧详情
+    </NuxtLink>
+    <FeedbackState v-if="subjectError || episodesError" title="番剧或章节暂时无法加载" description="返回详情页重新选择，或稍后刷新。" /><template
+      v-else-if="subject && episode">
+      <div class="watch-heading">
         <div>
           <span class="eyebrow">NOW PLAYING</span>
           <h1>{{ subject.name }}</h1>
@@ -453,27 +451,14 @@ onBeforeUnmount(() => {
       </div>
       <div class="watch-layout">
         <div class="watch-main">
-          <PlayerVideoPlayer
-            v-if="descriptor"
-            :key="descriptor.url"
-            ref="player"
-            :descriptor="descriptor"
-            :source-id="active?.sourceId"
-            :start-time="startTime"
-            :settings="settings"
-            :danmaku="danmaku"
-            @progress="save"
-            @fatal="fatal"
-            @settings="preferences"
-          />
+          <PlayerVideoPlayer v-if="descriptor" :key="descriptor.url" ref="player" :descriptor="descriptor"
+            :source-id="active?.sourceId" :start-time="startTime" :settings="settings" :danmaku="danmaku"
+            @progress="save" @fatal="fatal" @settings="preferences" />
           <div v-else class="player-placeholder">
-            <AppIcon
-              :name="loading ? 'RefreshCw' : 'MonitorPlay'"
-              :size="36"
-              :class="{ spinning: loading }"
-            /><strong>{{
-              loading ? "正在寻找可播放的线路…" : "选择一条线路，开始观看"
-            }}</strong>
+            <UIcon aria-hidden="true" :name="loading ? 'i-lucide-refresh-cw' : 'i-lucide-monitor-play'"
+              :class="{ spinning: loading }" :size="36" /><strong>{{
+                loading ? "正在寻找可播放的线路…" : "选择一条线路，开始观看"
+              }}</strong>
             <p>
               {{
                 errorMessage ||
@@ -483,170 +468,98 @@ onBeforeUnmount(() => {
             </p>
           </div>
           <div class="player-toolbar">
-            <span class="saved-status"
-              ><AppIcon name="ShieldCheck" :size="15" />{{
+            <span class="saved-status">
+              <UIcon aria-hidden="true" name="i-lucide-shield-check" :size="15" />{{
                 hasRecord
                   ? `已保存到 ${formatTime(savedPosition)}`
                   : "播放后自动保存进度"
-              }}</span
-            >
+              }}
+            </span>
             <div>
-              <UButton
-                color="neutral"
-                variant="soft"
-                class="text-link"
-                :class="{ 'accent-text': completed }"
-                @click="markCompleted"
-              >
-                <AppIcon name="Check" :size="16" />{{
+              <UButton color="neutral" variant="soft" class="text-link" :class="{ 'accent-text': completed }"
+                @click="markCompleted">
+                <UIcon aria-hidden="true" name="i-lucide-check" :size="16" />{{
                   completed ? "已看完" : "标记已看"
-                }}</UButton
-              ><NuxtLink
-                v-if="previous"
-                :to="`/watch/${subjectId}/${previous.id}`"
-                class="icon-button"
-                aria-label="上一集"
-                ><AppIcon name="ChevronLeft" /></NuxtLink
-              ><NuxtLink
-                v-if="next"
-                :to="`/watch/${subjectId}/${next.id}`"
-                class="text-link"
-                >下一集<AppIcon name="ChevronRight" :size="17"
-              /></NuxtLink>
+                }}
+              </UButton>
+              <NuxtLink v-if="previous" :to="`/watch/${subjectId}/${previous.id}`" class="icon-button" aria-label="上一集">
+                <UIcon aria-hidden="true" name="i-lucide-chevron-left" :size="20" />
+              </NuxtLink>
+              <NuxtLink v-if="next" :to="`/watch/${subjectId}/${next.id}`" class="text-link">下一集
+                <UIcon aria-hidden="true" name="i-lucide-chevron-right" :size="17" />
+              </NuxtLink>
             </div>
           </div>
           <p v-if="storageError" class="notice warning" role="alert">
             {{ storageError }}
           </p>
-          <p
-            v-if="errorMessage && !loading"
-            class="notice warning"
-            role="alert"
-          >
+          <p v-if="errorMessage && !loading" class="notice warning" role="alert">
             {{ errorMessage }}
           </p>
           <section class="panel source-panel">
             <div class="panel-heading">
-              <h2><AppIcon name="MonitorPlay" :size="18" />播放线路</h2>
-              <UButton
-                color="neutral"
-                variant="soft"
-                class="text-link"
-                :disabled="discovering"
-                @click="loadResources(false)"
-              >
-                <AppIcon name="RefreshCw" :size="15" />刷新
+              <h2>
+                <UIcon aria-hidden="true" name="i-lucide-monitor-play" :size="18" />播放线路
+              </h2>
+              <UButton color="neutral" variant="soft" class="text-link" :disabled="discovering"
+                @click="loadResources(false)">
+                <UIcon aria-hidden="true" name="i-lucide-refresh-cw" :size="15" />刷新
               </UButton>
             </div>
             <p v-if="resourceMessage" class="muted">{{ resourceMessage }}</p>
             <div class="source-filters">
-              <UButton
-                size="xs"
-                :variant="sourceFilter === 'all' ? 'solid' : 'soft'"
-                @click="sourceFilter = 'all'"
-                >全部 {{ resources.length }}</UButton
-              >
-              <UButton
-                v-for="source in resourceSources"
-                :key="source.id"
-                size="xs"
-                :variant="sourceFilter === source.id ? 'solid' : 'soft'"
-                @click="sourceFilter = source.id"
-                >{{ source.name }}
+              <UButton size="xs" :variant="sourceFilter === 'all' ? 'solid' : 'soft'" @click="sourceFilter = 'all'">全部
+                {{ resources.length }}</UButton>
+              <UButton v-for="source in resourceSources" :key="source.id" size="xs"
+                :variant="sourceFilter === source.id ? 'solid' : 'soft'" @click="sourceFilter = source.id">{{
+                  source.name }}
                 {{
                   resources.filter((row) => row.sourceId === source.id).length
-                }}</UButton
-              >
-              <UButton
-                to="/sources"
-                color="neutral"
-                variant="ghost"
-                size="xs"
-                icon="i-lucide-settings-2"
-                >管理源</UButton
-              >
+                }}</UButton>
+              <UButton to="/sources" color="neutral" variant="ghost" size="xs" icon="i-lucide-settings-2">管理源</UButton>
             </div>
             <div class="source-list">
-              <UButton
-                color="neutral"
-                variant="soft"
-                v-for="resource in filteredResources"
-                :key="resource.id"
-                class="source-button"
-                :class="{ selected: active?.id === resource.id }"
-                @click="selectResource(resource)"
-              >
-                <span class="source-dot" /><span
-                  ><strong
-                    >{{ resource.sourceName }} · {{ resource.channel }}</strong
-                  ><small>{{
-                    resource.match === "confirm"
-                      ? `请确认：${resource.subjectName} · ${resource.episodeName}`
-                      : resource.episodeName
-                  }}</small></span
-                ><AppIcon
-                  :name="active?.id === resource.id ? 'Check' : 'Play'"
-                  :size="16"
-                />
+              <UButton v-for="resource in filteredResources" :key="resource.id" color="neutral" variant="soft"
+                class="source-button" :class="{ selected: active?.id === resource.id }"
+                @click="selectResource(resource)">
+                <span class="source-dot" /><span><strong>{{ resource.sourceName }} · {{ resource.channel
+                    }}</strong><small>{{
+                      resource.match === "confirm"
+                        ? `请确认：${resource.subjectName} · ${resource.episodeName}`
+                        : resource.episodeName
+                    }}</small></span>
+                <UIcon aria-hidden="true" :name="active?.id === resource.id ? 'i-lucide-check' : 'i-lucide-play'"
+                  :size="16" />
               </UButton>
             </div>
             <div class="source-checks" aria-live="polite">
-              <span
-                v-for="check in Object.values(sourceChecks)"
-                :key="check.id"
-                :title="check.message"
-                >{{
-                  sourceCatalog.find((source) => source.id === check.id)?.name
-                }}
-                · {{ statusLabels[check.state] }}</span
-              >
+              <span v-for="check in Object.values(sourceChecks)" :key="check.id" :title="check.message">{{
+                sourceCatalog.find((source) => source.id === check.id)?.name
+              }}
+                · {{ statusLabels[check.state] }}</span>
             </div>
-            <UButton
-              color="neutral"
-              variant="soft"
-              class="text-link add-local"
-              @click="showLocal = !showLocal"
-            >
-              <AppIcon :name="showLocal ? 'X' : 'Plus'" :size="16" />{{
+            <UButton color="neutral" variant="soft" class="text-link add-local" @click="showLocal = !showLocal">
+              <UIcon aria-hidden="true" :name="showLocal ? 'i-lucide-x' : 'i-lucide-plus'" :size="16" />{{
                 showLocal ? "收起" : "添加自己的视频地址"
               }}
             </UButton>
-            <form
-              v-if="showLocal"
-              class="local-source-form"
-              @submit.prevent="useLocal"
-            >
-              <label for="local-url">HTTPS 视频地址，仅保存在这台设备</label
-              ><UInput
-                id="local-url"
-                v-model="localUrl"
-                type="url"
-                required
-                placeholder="https://…/video.m3u8"
-              />
+            <form v-if="showLocal" class="local-source-form" @submit.prevent="useLocal">
+              <label for="local-url">HTTPS 视频地址，仅保存在这台设备</label>
+              <UInput id="local-url" v-model="localUrl" type="url" required placeholder="https://…/video.m3u8" />
               <div>
-                <USelect
-                  v-model="localFormat"
-                  :items="[
-                    { label: 'MP4', value: 'mp4' },
-                    { label: 'HLS / m3u8', value: 'hls' },
-                  ]"
-                  aria-label="视频格式"
-                /><UButton type="submit"> 使用这个地址 </UButton>
+                <USelect v-model="localFormat" :items="[
+                  { label: 'MP4', value: 'mp4' },
+                  { label: 'HLS / m3u8', value: 'hls' },
+                ]" aria-label="视频格式" />
+                <UButton type="submit"> 使用这个地址 </UButton>
               </div>
               <p class="muted">
                 地址需允许浏览器播放。HLS 还需要上游允许跨域请求。
               </p>
             </form>
           </section>
-          <PlayerDanmakuPanel
-            :storage-key="key"
-            :subject="subject"
-            :episode="episode"
-            :settings="settings"
-            @items="danmaku = $event"
-            @settings="preferences"
-          />
+          <PlayerDanmakuPanel :storage-key="key" :subject="subject" :episode="episode" :settings="settings"
+            @items="danmaku = $event" @settings="preferences" />
         </div>
         <aside class="panel watch-episodes">
           <div class="panel-heading">
@@ -654,21 +567,16 @@ onBeforeUnmount(() => {
             <span class="muted">{{ relevantEpisodes.length }} 话</span>
           </div>
           <div class="watch-episode-list">
-            <NuxtLink
-              v-for="ep in relevantEpisodes"
-              :key="ep.id"
-              :to="`/watch/${subjectId}/${ep.id}`"
-              :class="{ active: ep.id === episodeId }"
-              ><span>{{ String(ep.sort).padStart(2, "0") }}</span
-              ><strong>{{ ep.name }}</strong
-              ><AppIcon v-if="ep.id === episodeId" name="Play" :size="15"
-            /></NuxtLink>
+            <NuxtLink v-for="ep in relevantEpisodes" :key="ep.id" :to="`/watch/${subjectId}/${ep.id}`"
+              :class="{ active: ep.id === episodeId }"><span>{{ String(ep.sort).padStart(2, "0") }}</span><strong>{{
+                ep.name }}</strong>
+              <UIcon v-if="ep.id === episodeId" aria-hidden="true" name="i-lucide-play" :size="15" />
+            </NuxtLink>
           </div>
-        </aside></div></template
-    ><FeedbackState
-      v-else-if="!loading"
-      title="没有找到对应章节"
-      description="请返回番剧详情重新选择。"
-    />
+        </aside>
+      </div>
+      <EpisodeComments :episode-id="episodeId" :episode-title="`第 ${episode?.sort ?? ''} 话 · ${episode?.name || ''}`" />
+    </template>
+    <FeedbackState v-else-if="!loading" title="没有找到对应章节" description="请返回番剧详情重新选择。" />
   </div>
 </template>

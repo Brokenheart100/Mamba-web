@@ -11,7 +11,7 @@ const visible = computed(() =>
   ),
 );
 onMounted(refresh);
-useSeoMeta({ title: "观看记录 — Ani" });
+useSeoMeta({ title: "观看记录 — Mamba-Animation" });
 function date(value: number) {
   return new Intl.DateTimeFormat("zh-CN", {
     month: "short",
@@ -32,7 +32,7 @@ function date(value: number) {
         </p>
       </div>
       <UButton to="/settings" color="neutral" variant="soft"
-        ><AppIcon name="Download" :size="16" />管理记录</UButton
+        ><UIcon aria-hidden="true" name="i-lucide-download" :size="16" />管理记录</UButton
       >
     </div>
     <p v-if="storageError" class="notice warning" role="alert">
@@ -68,7 +68,7 @@ function date(value: number) {
             sizes="70px md:92px"
             :alt="row.subjectName"
             referrerpolicy="no-referrer" /><span
-            ><AppIcon name="Play" :size="20" /></span
+            ><UIcon aria-hidden="true" name="i-lucide-play" :size="20" /></span
         ></NuxtLink>
         <div class="history-info">
           <NuxtLink :to="`/watch/${row.subjectId}/${row.episodeId}`"
@@ -100,7 +100,7 @@ function date(value: number) {
             :aria-label="row.completed ? '取消已看' : '标记已看'"
             @click="toggleCompleted(row)"
           >
-            <AppIcon name="Check" :size="18" /></UButton
+            <UIcon aria-hidden="true" name="i-lucide-check" :size="18" /></UButton
           ><UButton
             color="neutral"
             variant="soft"
@@ -108,7 +108,7 @@ function date(value: number) {
             :aria-label="`删除 ${row.subjectName} 第 ${row.sort} 话的记录`"
             @click="remove(row.key)"
           >
-            <AppIcon name="Trash2" :size="17" />
+            <UIcon aria-hidden="true" name="i-lucide-trash2" :size="17" />
           </UButton>
         </div>
       </article>

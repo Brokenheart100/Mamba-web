@@ -1,3 +1,7 @@
+import type { z } from "zod";
+import type { watchProgressSchema } from "../schemas/media";
+import type { danmakuSchema } from "../schemas/danmaku";
+
 export interface Subject {
   id: number;
   name: string;
@@ -33,6 +37,18 @@ export interface SearchResult {
   total: number;
   offset: number;
   limit: number;
+}
+export interface RelatedSubject {
+  subject: Subject;
+  type: number;
+  relation: string;
+}
+export interface SubjectCharacter {
+  id: number;
+  name: string;
+  image: string;
+  relation: string;
+  actors: { id: number; name: string; image: string }[];
 }
 export interface ResourceCandidate {
   id: string;
@@ -78,21 +94,7 @@ export interface PlaybackDescriptor {
   sourceName: string;
   channel: string;
 }
-export interface WatchProgress {
-  key: string;
-  subjectId: number;
-  episodeId: number;
-  subjectName: string;
-  episodeName: string;
-  image: string;
-  sort: number;
-  position: number;
-  duration: number;
-  completed: boolean;
-  updatedAt: number;
-  sourceId: string;
-  channel: string;
-}
+export type WatchProgress = z.infer<typeof watchProgressSchema>;
 export interface PlayerSettings {
   volume: number;
   rate: number;
@@ -106,13 +108,7 @@ export interface PlayerSettings {
   danmakuSync: boolean;
   danmakuModes: Danmaku["mode"][];
 }
-export interface Danmaku {
-  id: string;
-  time: number;
-  text: string;
-  color: string;
-  mode: "scroll" | "top" | "bottom";
-}
+export type Danmaku = z.infer<typeof danmakuSchema>;
 export interface DanmakuResult {
   items: Danmaku[];
   message: string;

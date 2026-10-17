@@ -3,7 +3,13 @@ import type {
   Episode,
   SearchResult,
   Subject,
+  RelatedSubject,
+  SubjectCharacter,
 } from "#shared/types/media";
+import { relatedSubjectsSchema, relatedCharactersSchema } from "#shared/schemas/discovery";
+import type { DiscoveryQuery } from "#shared/schemas/discovery";
+import type { CategoryQuery } from "#shared/schemas/categories";
+import { categoryPageSize, categoryRegionTags } from "#shared/constants/categories";
 
 interface BgmSubject {
   id: number;
@@ -60,21 +66,17 @@ async function request<T>(
   } = {},
 ): Promise<T> {
   try {
-    const url = new URL(`https://api.bgm.tv${path}`);
-    for (const [key, value] of Object.entries(options.query || {}))
-      url.searchParams.set(key, String(value));
-    const response = await fetch(url, {
-      method: options.method || "GET",
-      body: options.body ? JSON.stringify(options.body) : undefined,
-      signal: AbortSignal.timeout(12_000),
+    return await $fetch<T>(path, {
+      baseURL: "https://api.bgm.tv",
+      ...options,
+      timeout: 12_000,
+      retry: 0,
       headers: {
-        "User-Agent": "AnimekoWeb/0.1 (Nuxt; local-first anime catalog)",
+        "User-Agent": "Mamba-Animation/0.1 (Nuxt; local-first anime catalog)",
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-    });
-    if (!response.ok) throw { status: response.status };
-    return (await response.json()) as T;
+    }) as T;
   } catch (error) {
     const code = (error as { status?: number }).status;
     throw createError({
@@ -165,15 +167,94 @@ export const searchSubjects = defineCachedFunction(
       {
         method: "POST",
         body: { keyword, sort: "match", filter: { type: [2] } },
-        query: { limit: 24, offset },
+        query: { limit: categoryPageSize, offset },
       },
     );
     return {
       data: result.data.map(mapSubject),
       total: result.total,
       offset,
-      limit: 24,
+      limit: categoryPageSize,
     };
   },
   { name: "bgm-search", maxAge: 300, swr: true },
+);
+
+export const browseAnime = defineCachedFunction(
+  async (filters: CategoryQuery): Promise<SearchResult> => {
+    const tag = [
+      categoryRegionTags[filters.region],
+      filters.format === "全部" ? "" : filters.format,
+      filters.genre === "全部" ? "" : filters.genre,
+    ].filter(Boolean);
+    const airDate = filters.year === "全部" ? undefined
+      : filters.year === "2000以前" ? ["<2000-01-01"]
+        : [`>=${filters.year}-01-01`, `<${Number(filters.year) + 1}-01-01`];
+    const offset = (filters.page - 1) * categoryPageSize;
+    const result = await request<{ data: BgmSubject[]; total: number }>(
+      "/v0/search/subjects",
+      {
+        method: "POST",
+        body: {
+          keyword: "",
+          sort: filters.sort,
+          filter: { type: [2], ...(tag.length ? { tag } : {}), ...(airDate ? { air_date: airDate } : {}) },
+        },
+        query: { limit: categoryPageSize, offset },
+      },
+    );
+    return { data: result.data.map(mapSubject), total: result.total, offset, limit: categoryPageSize };
+  },
+  { name: "bgm-anime-categories-v1", maxAge: 300, swr: true },
+);
+
+export const getRelatedSubjects = defineCachedFunction(
+  async (id: number): Promise<RelatedSubject[]> => {
+    const parsed = relatedSubjectsSchema.safeParse(await request<unknown>(`/v0/subjects/${id}/subjects`));
+    if (!parsed.success) throw createError({ statusCode: 502, message: "关联作品资料暂时无法读取。" });
+    const labels: Record<number, string> = { 1: "书籍", 2: "动画", 3: "音乐", 4: "游戏", 6: "三次元" };
+    return parsed.data.map((row) => ({
+      type: row.type, relation: row.relation,
+      subject: mapSubject({ ...row, platform: labels[row.type] || "其他" }),
+    }));
+  },
+  { name: "bgm-related-subjects-v1", maxAge: 3600, swr: true },
+);
+
+export const getSubjectCharacters = defineCachedFunction(
+  async (id: number): Promise<SubjectCharacter[]> => {
+    const parsed = relatedCharactersSchema.safeParse(await request<unknown>(`/v0/subjects/${id}/characters`));
+    if (!parsed.success) throw createError({ statusCode: 502, message: "角色与声优资料暂时无法读取。" });
+    return parsed.data.map((row) => ({
+      id: row.id, name: row.name, relation: row.relation,
+      image: (row.images.large || row.images.common).replace(/^http:/, "https:"),
+      actors: row.actors.map((actor) => ({
+        id: actor.id, name: actor.name, image: (actor.images.large || actor.images.common).replace(/^http:/, "https:"),
+      })),
+    }));
+  },
+  { name: "bgm-subject-characters-v1", maxAge: 3600, swr: true },
+);
+
+export const browseDiscovery = defineCachedFunction(
+  async (filters: DiscoveryQuery): Promise<SearchResult> => {
+    const offset = (filters.page - 1) * categoryPageSize;
+    const query = { limit: categoryPageSize, offset };
+    let result: { data: BgmSubject[]; total: number };
+    if (filters.mode === "season") {
+      const month = (Number(filters.quarter) - 1) * 3 + 1;
+      const endMonth = month + 3;
+      const end = endMonth > 12 ? `${Number(filters.year) + 1}-01-01` : `${filters.year}-${String(endMonth).padStart(2, "0")}-01`;
+      result = await request("/v0/search/subjects", {
+        method: "POST", query,
+        body: { keyword: "", sort: filters.sort, filter: { type: [2], air_date: [`>=${filters.year}-${String(month).padStart(2, "0")}-01`, `<${end}`] } },
+      });
+    } else {
+      result = await request("/v0/subjects", {
+        query: { ...query, type: 2, sort: "rank", ...(filters.year !== "全部" ? { year: Number(filters.year) } : {}) },
+      });
+    }
+    return { data: result.data.map(mapSubject), total: result.total, offset, limit: categoryPageSize };
+  },
+  { name: "bgm-discovery-v1", maxAge: 900, swr: true },
 );

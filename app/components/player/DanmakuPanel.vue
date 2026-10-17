@@ -83,7 +83,7 @@ function offsetChanged(event: Event) {
 <template>
   <section class="panel danmaku-panel">
     <div class="panel-heading">
-      <h2><AppIcon name="MessageSquare" :size="18" />弹幕</h2>
+      <h2><UIcon aria-hidden="true" name="i-lucide-message-square" :size="18" />弹幕</h2>
       <div class="switch-label">
         <USwitch
           :model-value="settings.danmaku"
@@ -133,13 +133,13 @@ function offsetChanged(event: Event) {
     </p>
     <div class="danmaku-controls">
       <label class="button secondary file-button"
-        ><AppIcon name="Upload" :size="16" />导入弹幕<input
+        ><UIcon aria-hidden="true" name="i-lucide-upload" :size="16" />导入弹幕<input
           type="file"
           accept=".xml,.json"
           aria-label="导入弹幕文件"
           :disabled="!ready"
           @change="uploadFile"
-      /></label>
+      ></label>
       <label
         >时间偏移<input
           :value="settings.danmakuOffset"
@@ -148,7 +148,7 @@ function offsetChanged(event: Event) {
           max="300"
           aria-label="弹幕时间偏移"
           @change="offsetChanged"
-        />秒</label
+        >秒</label
       >
       <label
         >倍速<USelect
@@ -239,12 +239,7 @@ function offsetChanged(event: Event) {
                 ></small
               ></span
             >
-            <UIcon
-              name="i-lucide-check"
-              v-if="
-                mode === 'online' && match?.episodeId === candidate.episodeId
-              "
-            /><UIcon name="i-lucide-chevron-right" v-else />
+            <UIcon v-if=" mode === 'online' && match?.episodeId === candidate.episodeId " name="i-lucide-check" /><UIcon v-else name="i-lucide-chevron-right" />
           </UButton>
         </div>
       </template>

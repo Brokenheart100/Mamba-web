@@ -484,7 +484,7 @@ defineExpose({
   <div class="video-player art-player-shell" :data-player-state="state">
     <div ref="host" class="art-player-host" />
     <div v-if="state === 'loading'" class="video-status" role="status">
-      <AppIcon name="RefreshCw" :size="18" class="spinning" /><span
+      <UIcon aria-hidden="true" name="i-lucide-refresh-cw" class="spinning" :size="18" /><span
         >正在载入故事…</span
       >
     </div>
@@ -496,7 +496,7 @@ defineExpose({
       {{ danmakuError }}
     </div>
     <div v-if="state === 'error'" class="video-failure" role="alert">
-      <AppIcon name="Film" :size="32" /><strong>这条线路暂时无法播放</strong>
+      <UIcon aria-hidden="true" name="i-lucide-film" :size="32" /><strong>这条线路暂时无法播放</strong>
       <p>{{ message }}</p>
     </div>
   </div>

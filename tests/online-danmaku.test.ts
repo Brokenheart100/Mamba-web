@@ -33,21 +33,26 @@ beforeEach(async () => {
   connection.close();
 });
 describe("local online danmaku persistence", () => {
+  it("rejects malformed local comments before they reach the player", async () => {
+    await storeDanmaku("corrupt-local", []);
+    const connection = await openDB("ani-local-danmaku", 1);
+    await connection.put("episodes", [{ id: "0", text: "missing time" }], "corrupt-local");
+    connection.close();
+    await expect(readDanmaku("corrupt-local")).rejects.toThrow();
+  });
   it("remembers the confirmed pool without conflating local chapter and provider IDs", async () => {
     await saveDanmakuSelection("400602:1227087", { mode: "online", match });
     expect(await readDanmakuSelection("400602:1227087")).toEqual({
       mode: "online",
       match,
     });
-    expect(await readDanmakuSelection("400602:1227088")).toEqual({
-      mode: "local",
-    });
+    expect(await readDanmakuSelection("400602:1227088")).toBeUndefined();
   });
   it("switches back to local without deleting the saved online match or imported files", async () => {
     await storeDanmaku("400602:1227087", row().items);
     await saveOnlineDanmakuCache(row());
     await saveDanmakuSelection("400602:1227087", { mode: "local", match });
-    expect((await readDanmakuSelection("400602:1227087")).match).toEqual(match);
+    expect((await readDanmakuSelection("400602:1227087"))?.match).toEqual(match);
     expect(await readDanmaku("400602:1227087")).toHaveLength(1);
     expect((await readOnlineDanmakuCache(match.episodeId))?.items).toHaveLength(
       1,

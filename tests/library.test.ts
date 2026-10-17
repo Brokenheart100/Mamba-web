@@ -39,6 +39,14 @@ const record = (overrides: Partial<WatchProgress> = {}): WatchProgress => ({
 beforeEach(clearProgress);
 
 describe("local progress", () => {
+  it("ignores corrupted stored records without losing valid history", async () => {
+    await saveProgress(record());
+    const connection = await openDB("ani-local-library", 1);
+    await connection.put("progress", record({ key: "400602:99", episodeId: 99, position: -1 }));
+    connection.close();
+    expect(await getProgress("400602:99")).toBeUndefined();
+    expect(await listProgress()).toEqual([record()]);
+  });
   it("reads existing v1 settings and persists new player preferences without a database migration", async () => {
     const connection = await openDB("ani-local-library", 1);
     await connection.put(

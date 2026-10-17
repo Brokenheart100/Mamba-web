@@ -63,7 +63,7 @@ watch(kind, () => {
   position.value = 0;
   startTime.value = 0;
 });
-useSeoMeta({ title: "播放器体验 — Ani" });
+useSeoMeta({ title: "播放器体验 — Mamba-Animation" });
 </script>
 <template>
   <div class="page lab-page">
@@ -102,7 +102,7 @@ useSeoMeta({ title: "播放器体验 — Ani" });
         <p>{{ sources[kind].sourceName }}</p>
       </div>
       <UButton color="neutral" variant="soft" @click="resume">
-        <AppIcon name="RefreshCw" :size="16" />从
+        <UIcon aria-hidden="true" name="i-lucide-refresh-cw" :size="16" />从
         {{ formatTime(position) }} 重载续播
       </UButton>
     </div>

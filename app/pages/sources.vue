@@ -37,7 +37,7 @@ const colors: Record<SourceState, "success" | "warning" | "neutral" | "error"> =
   };
 onMounted(() => initialize(sources.value));
 watch(sources, (value) => initialize(value));
-useSeoMeta({ title: "播放源 — Ani" });
+useSeoMeta({ title: "播放源 — Mamba-Animation" });
 async function check(source: VideoSourceInfo) {
   if (checking.value.includes(source.id)) return;
   checking.value.push(source.id);

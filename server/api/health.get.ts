@@ -1,6 +1,6 @@
 export default defineEventHandler(() => ({
   status: "ok",
-  app: "animeko-web",
+  app: "mamba-animation",
   version: "0.1.0",
   history: "browser-only",
 }));
