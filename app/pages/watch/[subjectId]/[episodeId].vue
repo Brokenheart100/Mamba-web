@@ -451,11 +451,13 @@ onBeforeUnmount(() => {
       </div>
       <div class="watch-layout">
         <div class="watch-main">
-          <PlayerVideoPlayer v-if="descriptor" :key="descriptor.url" ref="player" :descriptor="descriptor"
+          <PlayerVideoPlayer
+v-if="descriptor" :key="descriptor.url" ref="player" :descriptor="descriptor"
             :source-id="active?.sourceId" :start-time="startTime" :settings="settings" :danmaku="danmaku"
             @progress="save" @fatal="fatal" @settings="preferences" />
           <div v-else class="player-placeholder">
-            <UIcon aria-hidden="true" :name="loading ? 'i-lucide-refresh-cw' : 'i-lucide-monitor-play'"
+            <UIcon
+aria-hidden="true" :name="loading ? 'i-lucide-refresh-cw' : 'i-lucide-monitor-play'"
               :class="{ spinning: loading }" :size="36" /><strong>{{
                 loading ? "正在寻找可播放的线路…" : "选择一条线路，开始观看"
               }}</strong>
@@ -476,7 +478,8 @@ onBeforeUnmount(() => {
               }}
             </span>
             <div>
-              <UButton color="neutral" variant="soft" class="text-link" :class="{ 'accent-text': completed }"
+              <UButton
+color="neutral" variant="soft" class="text-link" :class="{ 'accent-text': completed }"
                 @click="markCompleted">
                 <UIcon aria-hidden="true" name="i-lucide-check" :size="16" />{{
                   completed ? "已看完" : "标记已看"
@@ -501,7 +504,8 @@ onBeforeUnmount(() => {
               <h2>
                 <UIcon aria-hidden="true" name="i-lucide-monitor-play" :size="18" />播放线路
               </h2>
-              <UButton color="neutral" variant="soft" class="text-link" :disabled="discovering"
+              <UButton
+color="neutral" variant="soft" class="text-link" :disabled="discovering"
                 @click="loadResources(false)">
                 <UIcon aria-hidden="true" name="i-lucide-refresh-cw" :size="15" />刷新
               </UButton>
@@ -510,7 +514,8 @@ onBeforeUnmount(() => {
             <div class="source-filters">
               <UButton size="xs" :variant="sourceFilter === 'all' ? 'solid' : 'soft'" @click="sourceFilter = 'all'">全部
                 {{ resources.length }}</UButton>
-              <UButton v-for="source in resourceSources" :key="source.id" size="xs"
+              <UButton
+v-for="source in resourceSources" :key="source.id" size="xs"
                 :variant="sourceFilter === source.id ? 'solid' : 'soft'" @click="sourceFilter = source.id">{{
                   source.name }}
                 {{
@@ -519,7 +524,8 @@ onBeforeUnmount(() => {
               <UButton to="/sources" color="neutral" variant="ghost" size="xs" icon="i-lucide-settings-2">管理源</UButton>
             </div>
             <div class="source-list">
-              <UButton v-for="resource in filteredResources" :key="resource.id" color="neutral" variant="soft"
+              <UButton
+v-for="resource in filteredResources" :key="resource.id" color="neutral" variant="soft"
                 class="source-button" :class="{ selected: active?.id === resource.id }"
                 @click="selectResource(resource)">
                 <span class="source-dot" /><span><strong>{{ resource.sourceName }} · {{ resource.channel
@@ -528,7 +534,8 @@ onBeforeUnmount(() => {
                         ? `请确认：${resource.subjectName} · ${resource.episodeName}`
                         : resource.episodeName
                     }}</small></span>
-                <UIcon aria-hidden="true" :name="active?.id === resource.id ? 'i-lucide-check' : 'i-lucide-play'"
+                <UIcon
+aria-hidden="true" :name="active?.id === resource.id ? 'i-lucide-check' : 'i-lucide-play'"
                   :size="16" />
               </UButton>
             </div>
@@ -547,7 +554,8 @@ onBeforeUnmount(() => {
               <label for="local-url">HTTPS 视频地址，仅保存在这台设备</label>
               <UInput id="local-url" v-model="localUrl" type="url" required placeholder="https://…/video.m3u8" />
               <div>
-                <USelect v-model="localFormat" :items="[
+                <USelect
+v-model="localFormat" :items="[
                   { label: 'MP4', value: 'mp4' },
                   { label: 'HLS / m3u8', value: 'hls' },
                 ]" aria-label="视频格式" />
@@ -558,7 +566,8 @@ onBeforeUnmount(() => {
               </p>
             </form>
           </section>
-          <PlayerDanmakuPanel :storage-key="key" :subject="subject" :episode="episode" :settings="settings"
+          <PlayerDanmakuPanel
+:storage-key="key" :subject="subject" :episode="episode" :settings="settings"
             @items="danmaku = $event" @settings="preferences" />
         </div>
         <aside class="panel watch-episodes">
@@ -567,7 +576,8 @@ onBeforeUnmount(() => {
             <span class="muted">{{ relevantEpisodes.length }} 话</span>
           </div>
           <div class="watch-episode-list">
-            <NuxtLink v-for="ep in relevantEpisodes" :key="ep.id" :to="`/watch/${subjectId}/${ep.id}`"
+            <NuxtLink
+v-for="ep in relevantEpisodes" :key="ep.id" :to="`/watch/${subjectId}/${ep.id}`"
               :class="{ active: ep.id === episodeId }"><span>{{ String(ep.sort).padStart(2, "0") }}</span><strong>{{
                 ep.name }}</strong>
               <UIcon v-if="ep.id === episodeId" aria-hidden="true" name="i-lucide-play" :size="15" />

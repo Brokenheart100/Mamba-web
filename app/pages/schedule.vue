@@ -19,7 +19,8 @@ useSeoMeta({ title: "新番时间表 — Mamba-Animation" });
       <UIcon aria-hidden="true" name="i-lucide-calendar-days" :size="34" />
     </div>
     <FeedbackState v-if="error" title="时间表暂时无法加载" retry @retry="refresh()" /><template v-else>
-      <SegmentedControl v-model="selected" :items="(data || []).map((day) => ({
+      <SegmentedControl
+v-model="selected" :items="(data || []).map((day) => ({
         label: day.name + ' · ' + day.subjects.length,
         value: day.id,
       }))

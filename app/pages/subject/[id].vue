@@ -54,7 +54,8 @@ useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Mamba-An
     <FeedbackState v-if="error" title="暂时无法打开这部番剧" retry @retry="refresh()" /><template v-else-if="subject">
       <section class="detail-hero">
         <div class="detail-poster">
-          <AnimeCover :src="subject.image" sizes="180px md:300px" loading="eager" :alt="subject.name"
+          <AnimeCover
+:src="subject.image" sizes="180px md:300px" loading="eager" :alt="subject.name"
             referrerpolicy="no-referrer" />
         </div>
         <div class="detail-content">
@@ -74,7 +75,8 @@ useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Mamba-An
               tag
             }}</span>
           </div>
-          <UButton v-if="last || first" :to="`/watch/${id}/${last?.episodeId || first?.id}`" color="primary"
+          <UButton
+v-if="last || first" :to="`/watch/${id}/${last?.episodeId || first?.id}`" color="primary"
             variant="solid">
             <UIcon aria-hidden="true" name="i-lucide-play" :size="18" />{{
               last
@@ -106,13 +108,15 @@ useSeoMeta({ title: () => `${subject.value?.name || "番剧详情"} — Mamba-An
           <span class="muted">在线资源将在选集后查找</span>
         </div>
         <FeedbackState v-if="episodesError" title="章节暂时无法加载" retry @retry="refreshEpisodes()" /><template v-else>
-          <SegmentedControl v-model="tab" :items="tabs.map((type) => ({
+          <SegmentedControl
+v-model="tab" :items="tabs.map((type) => ({
             label: typeNames[type] || '其他',
             value: type,
           }))
             " label="章节分类" />
           <div class="episode-grid">
-            <NuxtLink v-for="episode in visible" :key="episode.id" :to="`/watch/${id}/${episode.id}`"
+            <NuxtLink
+v-for="episode in visible" :key="episode.id" :to="`/watch/${id}/${episode.id}`"
               class="episode-tile" :class="{ watched: progress.get(episode.id)?.completed }"><span
                 class="episode-number">{{ episode.type === 0 ? "EP" : "SP" }}
                 {{ String(episode.sort).padStart(2, "0")

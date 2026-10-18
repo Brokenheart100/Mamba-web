@@ -24,7 +24,6 @@ export default defineNuxtConfig({
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
     },
   },
-  nitro: { preset: "node-server" },
   vite: { optimizeDeps: { include: ["hls.js", "idb"] } },
   routeRules: {
     "/watch/**": { ssr: false },

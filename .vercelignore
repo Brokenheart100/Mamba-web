@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+node_modules
+.nuxt
+.output
+.data
+.git
+.playwright-cli
+output
+output-audit*.json
+*.log

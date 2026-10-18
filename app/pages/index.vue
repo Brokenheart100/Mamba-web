@@ -48,13 +48,15 @@ useSeoMeta({ title: "发现好动画 — Mamba-Animation" });
     <FeedbackState v-if="error" title="故事正在路上" description="暂时无法获取番剧资料，请检查网络后重试。" retry @retry="refresh()" />
     <FeedbackState v-else-if="status === 'pending' && !featured" title="正在寻找好故事…" loading />
     <section v-if="featured" class="hero">
-      <AnimeCover class="hero-art" :width="1280" :height="720" sizes="100vw lg:900px" loading="eager"
+      <AnimeCover
+class="hero-art" :width="1280" :height="720" sizes="100vw lg:900px" loading="eager"
         :src="featured.image" :alt="featured.name" referrerpolicy="no-referrer" fetchpriority="high" />
       <div class="hero-shade" />
       <div class="hero-content">
         <span class="hero-kicker"><span>本季发现</span> SEASON SPOTLIGHT</span>
         <div class="hero-tags">
-          <span>{{ featured.platform }}</span><span>{{ featured.date.slice(0, 4) }}</span><span v-if="featured.score"
+          <span>{{ featured.platform }}</span><span>{{ featured.date.slice(0, 4) }}</span><span
+v-if="featured.score"
             class="hero-rating">★ {{ featured.score.toFixed(1) }} <small>Bangumi</small></span>
         </div>
         <h2>{{ featured.name }}</h2>
@@ -65,7 +67,8 @@ useSeoMeta({ title: "发现好动画 — Mamba-Animation" });
             "每周更新的故事，在这里与你相遇。打开番剧详情，发现角色、章节与更多精彩。"
           }}
         </p>
-        <UButton :to="`/subject/${featured.id}`" class="hero-cta" size="xl" icon="i-lucide-play"
+        <UButton
+:to="`/subject/${featured.id}`" class="hero-cta" size="xl" icon="i-lucide-play"
           trailing-icon="i-lucide-arrow-right">探索这部番剧</UButton>
         <div class="hero-footnote">
           <span class="tiny-line" /> 一段新的旅程，从这里开始。
@@ -84,7 +87,8 @@ useSeoMeta({ title: "发现好动画 — Mamba-Animation" });
           <UIcon aria-hidden="true" name="i-lucide-arrow-right" :size="16" />
         </NuxtLink>
       </div>
-      <SegmentedControl v-model="selectedDay" :items="[
+      <SegmentedControl
+v-model="selectedDay" :items="[
         { label: '全部精选', value: 0 },
         ...data.map((day) => ({
           label: day.name + (day.id === weekday ? ' ·' : ''),
