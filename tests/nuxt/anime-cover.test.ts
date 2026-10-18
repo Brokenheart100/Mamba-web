@@ -1,9 +1,39 @@
 import { describe, expect, it } from "vitest";
 import { mountSuspended } from "@nuxt/test-utils/runtime";
 import { nextTick } from "vue";
+import { useImage } from "#imports";
+import vercelProvider from "@nuxt/image/runtime/providers/vercel";
 import AnimeCover from "../../app/components/AnimeCover.vue";
 
 describe("Nuxt Image cover", () => {
+  it("uses the platform default when only Vercel and direct providers are registered", async () => {
+    const image = useImage();
+    const previousProvider = image.options.provider;
+    const previousProviders = image.options.providers;
+    // Simulate a cloud registry instead of the locally generated IPX registry.
+    Object.assign(image.options, {
+      provider: "vercel",
+      providers: {
+        none: previousProviders.none!,
+        vercel: { setup: vercelProvider, defaults: {} },
+      },
+    });
+    try {
+      const wrapper = await mountSuspended(AnimeCover, {
+        props: { src: "https://lain.bgm.tv/pic/cover/l/test.jpg", alt: "云端封面" },
+      });
+      try {
+        expect(wrapper.get("img").attributes("src")).toContain("lain.bgm.tv");
+        expect(wrapper.get("img").attributes("src")).not.toContain("/_ipx/");
+      } finally {
+        wrapper.unmount();
+      }
+    } finally {
+      image.options.provider = previousProvider;
+      image.options.providers = previousProviders;
+    }
+  });
+
   it("generates responsive optimized CDN URLs and keeps accessible image attributes", async () => {
     const wrapper = await mountSuspended(AnimeCover, {
       props: {

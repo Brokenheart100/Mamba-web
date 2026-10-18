@@ -40,7 +40,7 @@ const source = computed(() => {
     return "/poster-placeholder.svg";
   }
 });
-// Only the metadata CDN is proxied through IPX. Imported covers stay direct.
+// Use the platform's default optimizer for the metadata CDN; imported covers stay direct.
 const optimized = computed(() =>
   source.value.startsWith("https://lain.bgm.tv/"),
 );
@@ -49,7 +49,7 @@ const optimized = computed(() =>
   <NuxtImg
     :src="source"
     :alt="alt"
-    :provider="optimized ? 'ipx' : 'none'"
+    :provider="optimized ? undefined : 'none'"
     :width="width"
     :height="height"
     :sizes="sizes"

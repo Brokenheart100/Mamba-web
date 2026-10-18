@@ -1,6 +1,6 @@
 # Vercel 部署
 
-项目名称：`mamba-animation`。使用 Nuxt 的 Vercel 适配与 Node.js 24，保留 SSR、Nitro API 及客户端播放器。
+项目名称：`mamba-animation`。使用 Nuxt 的 Vercel 适配，构建环境为 Node.js 24；函数运行时由 Nitro 适配输出（当前为 Node.js 22）。保留 SSR、Nitro API 及客户端播放器。
 
 ## 构建
 
@@ -10,11 +10,15 @@
 
 ```powershell
 $env:NITRO_PRESET = 'vercel'
+$env:VERCEL = '1'
 npm run build
 Remove-Item Env:NITRO_PRESET
+Remove-Item Env:VERCEL
 ```
 
 输出为 `.vercel/output/`，由 Nitro 生成函数、静态资源和路由。该目录不提交到 Git；`.vercelignore` 同时排除本地环境文件、缓存和浏览器验证产物。
+
+封面使用 Nuxt Image 的平台默认 provider：本地默认 IPX，Vercel 自动使用其图片优化服务；不在组件中固定为 IPX。外部导入封面继续直接加载。
 
 ## 服务端环境变量
 
